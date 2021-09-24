@@ -160,10 +160,50 @@ ggplot(dta,aes(x=nodegree, y=age, fill=nodegree)) +
   theme_classic() + theme(legend.position="Top")+
   coord_flip() #degree holders have a higher median age as expected
 
-## looking for interactions
+## looking for 3-way relationships
 ##interactions to check: 
 #black and hispan (-age, educ, married, nodegree, re74/75)
-#age
+
+ggplot(dta,aes(x=re78, y=educ)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="educ") +
+  facet_wrap( ~ black,ncol=4) #nope
+
+ggplot(dta,aes(x=re78, y=age)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="age") +
+  facet_wrap( ~ black,ncol=4) #nope
+
+ggplot(dta,aes(x=re78, y=re74)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="re75") +
+  facet_wrap( ~ black,ncol=4) #nope for 75 yes for 74 
+
+
+ggplot(dta,aes(x=re78, y=educ)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="educ") +
+  facet_wrap( ~ hispan,ncol=4) #maybe
+
+ggplot(dta,aes(x=re78, y=age)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="age") +
+  facet_wrap( ~ hispan,ncol=4) #maybe
+
+ggplot(dta,aes(x=re78, y=re74)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="...",x="black",y="re75") +
+  facet_wrap( ~ hispan,ncol=4) #nope for 75 yes for 74 
+
+
+
+
 
 
 summary(lm(re78~age+educ+treat+re75+re74+age*treat,data=dta))
