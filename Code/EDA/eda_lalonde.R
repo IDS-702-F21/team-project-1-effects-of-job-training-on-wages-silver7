@@ -49,6 +49,7 @@ t.test(age~treat,data=dta,alternative="greater") #significant! --- limitation
 t.test(educ~treat,data=dta,alternative="greater") #not sigf
 #checking baseline sal
 t.test(re74~treat,data=dta,alternative="greater") #sigf - addressed in study/by design
+
 #We can compare growth in income, not income
 
 dta$treat_as_names= dta$treat
@@ -121,9 +122,60 @@ ggplot(dta,aes(x=nodegree, y=re78, fill=treat)) +
   theme_classic() + theme(legend.position="Top")+
   coord_flip()
 
+ggplot(dta,aes(x=re78, y=age)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="re78 vs age") #refer to reading for this relationship
+
+ggplot(dta,aes(x=re78, y=educ)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="re78 vs educ") #discrete so not very interesting
+
+ggplot(dta,aes(x=re78, y=re74)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="re78 vs re74") #linear as expected
+
+ggplot(dta,aes(x=re78, y=re75)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="re78 vs re75") #linear as expected
+
+#any other 2-way relationships worth exploring?
+
+ggplot(dta,aes(x=educ, y=age)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="educ vs age") #Huh?! Maybe older people in this dataset didn't study too much?
+
+dta$has_a_degree= dta$nodegree
+levels(dta$has_a_degree) = c("Has degree","No Degree")
+aggregate(dta[c('age')], list(dta$has_a_degree), mean) #guess not. Could be an issue for discrete var
+
+ggplot(dta,aes(x=nodegree, y=age, fill=nodegree)) +
+  geom_boxplot() + #coord_flip() +
+  scale_fill_brewer(palette="Blues") +
+  labs(title="age vs degree") + 
+  theme_classic() + theme(legend.position="Top")+
+  coord_flip() #degree holders have a higher median age as expected
+
+## looking for interactions
+##interactions to check: 
+#black and hispan (-age, educ, married, nodegree, re74/75)
+#age
+
+
+summary(lm(re78~age+educ+treat+re75+re74+age*treat,data=dta))
+
+
+colnames(dta)
 
 
 
+table(dta$nodegree, dta$age)
+
+?lalonde
 
 
 
