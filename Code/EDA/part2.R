@@ -184,8 +184,20 @@ step(glm(non_zero_re78_fact~1, data=df, family=binomial), scope=formula(re_inter
 
 #use backwardsBIC - gives - treat + age + re74 + treat*age
 
+
 final_model <- glm(non_zero_re78_fact ~ treat + age + re74 + treat*age , family=binomial(link=logit), data = df)
 summary(final_model)
 rawresid2 <- residuals(final_model, 'resp')
 binnedplot(x=fitted(re), y=rawresid2, xlab='Wage probabilities', 
            col.int='red4', ylab='Avg residuals', main='binned residual plot', col.pts='navy')
+
+
+Conf_mat_fin <- confusionMatrix(as.factor(ifelse(fitted(final_model) >= mean(df$non_zero_re78), '1', '0')), 
+                                as.factor(df$non_zero_re78), positive = '1')
+Conf_mat_fin$table
+Conf_mat_fin$overall['Accuracy']
+Conf_mat_fin$byClass[c('Sensitivity', 'Specificity')]
+
+
+roc(df$non_zero_re78, fitted(final_model), plot=T, print.thres='best', legacy.axes=T,     
+    print.auc=T, col='red3')
