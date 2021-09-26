@@ -21,6 +21,8 @@ outcome = re78 - re74
 ```{r import}
 df <- fread("../../Data/lalonde.csv")
 df[,outcome := re78 - re74]
+df[,b := as.numeric(re78>0)]
+df[,bf := factor(re78>0)]
 df[,race := c("black", "other")[black+1]]
 df[hispan==1,race := "hispanic"]
 df[,race := factor(race)]
@@ -37,6 +39,7 @@ ggplot(df) + aes(educ) + geom_histogram()
 print( table(df$treat) )
 print( table(df$race) )
 print( table(df$married) )
+print( table(df$bf) )
 print( table(df$nodegree) )
 ```
 
@@ -47,8 +50,14 @@ ggplot(df) + aes(x=outcome, y=treat_f) + geom_boxplot()
 ggplot(df) + aes(x=outcome, y=married_f) + geom_boxplot()
 ggplot(df) + aes(x=outcome, y=nodegree_f) + geom_boxplot()
 
+table(df$bf, df$race) %>% prop.table(2) 
+table(df$bf, df$treat_f) %>% prop.table(2) 
+table(df$bf, df$married_f) %>% prop.table(2) 
+table(df$bf, df$nodegree_f) %>% prop.table(2) 
+
 ggplot(df) + aes(x=age, y=outcome) + geom_point()
 ggplot(df) + aes(x=educ, y=outcome) + geom_point()
+
 ```
   
 Potenital Interactions through trivariate plots  
