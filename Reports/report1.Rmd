@@ -1,0 +1,35 @@
+---
+output:
+  pdf_document: default
+  html_notebook: default
+---
+# Team Project #1 - Silver Team 7
+Team: John Owusu Duah, Michelle Van, Peining Yang, Sarwari Das, Satvik Kishore
+
+# Part One
+## Summary
+
+
+## Introduction 
+
+
+An analysis was performed to assess whether or not job training for disadvantaged worked had an effect on their wages. A subset of data from the NSW Demonstration containing only male participants between March 1975 and July 1977 were used for this report. These participants were randomly assigned either to receive job training or not to receive training. The treatment group (those who received training) included data for which 1974 earnings were obtained, and the control group (those who did not receive training) includes participants whose income in 1975 was below the poverty level. In this report, not only is the relationship between training and wage differences explored, but also the effects on the wages differing by racial groups. 
+
+## Data
+
+
+
+
+
+# Part Two
+
+
+## Summary
+
+
+## Introduction 
+
+Using the same data from Part One, the likelihood of workers who received training earning non-zero wages more than those who did not receive training is explored in this report. The effects of the training is further analyed . Moreover, the effects of the association between different demographic groups and training on the likelihood of workers receiving non-zero wages are also evaluated in this report. 
+
+## Data
+
