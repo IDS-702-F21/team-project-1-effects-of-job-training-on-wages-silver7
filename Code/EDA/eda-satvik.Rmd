@@ -29,6 +29,9 @@ df[,race := factor(race)]
 df[,nodegree_f := factor(nodegree)]
 df[,married_f := factor(married)]
 df[,treat_f := factor(treat)]
+
+df[,growth := re78 - re74]
+df[treat==0,growth := re78 - re75]
 ```
 
 Univariate plots and tables  

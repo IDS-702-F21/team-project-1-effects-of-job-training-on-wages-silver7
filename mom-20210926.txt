@@ -10,11 +10,23 @@ Satvik showed basic model for re78-re74. Rsiduals plots look ed fine for the mos
 Disscussion on which outcome vairable to use and whether peopl with no income need to be excluded fromm part1 analysis. 
 - Decided to use re78 - re74, without excluding people. (excpet heavy outlier maybe).
 
+explored models with:
+b_growth = re78 - re74 : adj r.squared in 0.05
+growth = re78 - re74|re75/treatment : adj r.squared in 0.02. Residual plot=bad
+re78 : smoothed, non-smoother, different smooths. Residual plot=bad
+
+baseline for part1 : b_growth ~ other stuff.
+
+ask michael about clustering in residual v fitted values
+
+
+
+
 lookup post analysis race impact
 
 roles
 satvik - presenter
 peining - coder
-john - coder2
+john - coder
 sara - writer
-michelle - writer2
+michelle - writer
