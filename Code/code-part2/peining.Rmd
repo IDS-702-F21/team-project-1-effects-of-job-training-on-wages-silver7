@@ -1,0 +1,184 @@
+---
+title: 'IDS 702: Team Project 1 (Part 2_)'
+author: "Peining Yang"
+date: "9/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(arm)
+library(pROC)
+library(caret)
+```
+
+```{r data-wrangle}
+df <- read.csv("../../Data/lalonde.csv")
+df$growth <- df$re78 - df$re74
+
+df$wage <- ifelse(df$re78 > 0, 1, 0)
+
+df$race <- ifelse(df$black == 1, 1, ifelse(df$hispan == 1, 2, 0))
+df$race <- factor(df$race)
+
+df$treat <- factor(df$treat)
+df$married <- factor(df$married)
+df$nodegree <- factor(df$nodegree)
+df$wage <- factor(df$wage)
+
+summary(is.na(df))
+```
+
+```{r eda1}
+black <- df %>% filter(black == 1)
+mean(black$re78)
+
+not_black <- df %>% filter(black == 0)
+mean(not_black$re78)
+
+his <- df %>% filter(hispan == 1)
+mean(his$re78)
+
+not_his <- df %>% filter(hispan == 0)
+mean(not_his$re78)
+```
+
+```{r eda2}
+ggplot(df, aes(x = re78)) +
+  geom_histogram() +
+  facet_grid(. ~treat)
+
+ggplot(df, aes(x = growth)) +
+  geom_histogram() +
+  facet_grid(. ~treat)
+```
+
+```{r eda3}
+ggplot(df, aes(x = growth)) +
+  geom_histogram() +
+  facet_grid(. ~black)
+```
+
+```{r eda4}
+ggplot(df, aes(x = growth)) +
+  geom_histogram() +
+  facet_grid(. ~hispan)
+```
+
+```{r eda5}
+ggplot(df, aes(x = re78)) +
+  geom_histogram() +
+  facet_grid(. ~black)
+```
+
+```{r eda6}
+ggplot(df, aes(x = re78)) +
+  geom_histogram() +
+  facet_grid(. ~hispan)
+```
+
+# Part II
+```{r}
+glm1 <- glm(wage ~ treat + age + educ + race + married + nodegree + treat*race, data = df, family = binomial())
+summary(glm1)
+```
+
+```{r}
+resids1 <- residuals(glm1, "resp")
+
+binnedplot(fitted(glm1), resids1, xlab="Pred. probabilities",
+           col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy")
+
+binnedplot(df$age, resids1, xlab="Age",
+           col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy")
+
+```
+
+```{r}
+full_glm <- glm(wage ~ treat + age + educ + race + married + nodegree + re74 + re75 + 
+                  treat*(re74 + re75 + married + nodegree + race + age + educ) + 
+                  race*(re74 + re75 + married + nodegree + age + educ) + 
+                  married*(re74 + re75 + nodegree + age + educ) +
+                  nodegree*(re74 + re75 +  age + educ), data = df, family = binomial())
+null_glm <- glm(wage ~ treat, data = df, family = binomial())
+```
+
+```{r}
+f_aic <- step(null_glm, scope = formula(full_glm), direction = "forward", trace = 0) 
+summary(f_aic)
+```
+
+```{r}
+b_aic <- step(full_glm, direction = "backward", trace = 0)
+summary(b_aic)
+```
+
+```{r}
+step_aic <- step(null_glm, scope = formula(full_glm), direction = "both", trace = 0)
+summary(step_aic)
+```
+
+```{r}
+f_resids <- residuals(f_aic, "resp")
+b_resids <- residuals(b_aic, "resp")
+step_resids <- residuals(step_aic, "resp")
+
+# forward AIC
+binnedplot(fitted(f_aic), f_resids, xlab="Pred. probabilities",
+           col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy", 
+           cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7)
+
+# backward AIC
+binnedplot(fitted(b_aic), b_resids, xlab="Pred. probabilities",
+           col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy", 
+           cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7)
+
+# stepwise AIC
+binnedplot(fitted(step_aic), step_resids, xlab="Pred. probabilities",
+           col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy", 
+           cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7)
+```
+
+```{r}
+invisible(roc(df$wage, fitted(f_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Forward AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+
+invisible(roc(df$wage, fitted(b_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Backwards AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+
+invisible(roc(df$wage, fitted(step_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Stepwise AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+```
+
+```{r}
+# forward AIC
+cm1 <- confusionMatrix(as.factor(ifelse(fitted(f_aic) >= mean(df$wage), "1","0")),
+                            as.factor(df$wage),positive = "1")
+# backward AIC
+cm2 <- confusionMatrix(as.factor(ifelse(fitted(b_aic) >= mean(df$wage), "1","0")),
+                            as.factor(df$wage),positive = "1")
+# stepwise AIC
+cm3 <- confusionMatrix(as.factor(ifelse(fitted(step_aic) >= mean(df$wage), "1","0")),
+                            as.factor(df$wage),positive = "1")
+```
+
+```{r}
+# fowards AIC
+cm1$table
+cm1$overall["Accuracy"]
+cm1$byClass[c("Sensitivity","Specificity")]
+```
+
+```{r}
+# backwards AIC
+cm2$table
+cm2$overall["Accuracy"]
+cm2$byClass[c("Sensitivity","Specificity")]
+```
+
+```{r}
+# stepwise AIC
+cm3$table
+cm3$overall["Accuracy"]
+cm3$byClass[c("Sensitivity","Specificity")]
+```
