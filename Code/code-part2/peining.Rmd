@@ -117,6 +117,13 @@ summary(b_aic)
 ```
 
 ```{r}
+# backward BIC
+# 
+# b_bic <- step(full_glm, direction = "backward", trace = 0, k = log(nrow(df)))
+# summary(b_bic)
+```
+
+```{r}
 step_aic <- step(null_glm, scope = formula(full_glm), direction = "both", trace = 0)
 summary(step_aic)
 ```
@@ -143,22 +150,22 @@ binnedplot(fitted(step_aic), step_resids, xlab="Pred. probabilities",
 ```
 
 ```{r}
-invisible(roc(df$wage, fitted(f_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Forward AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+invisible(roc(df$wage, fitted(f_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage))), legacy.axes = T, print.auc = T, col = "red3", main = "Forward AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 
-invisible(roc(df$wage, fitted(b_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Backwards AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+invisible(roc(df$wage, fitted(b_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage))), legacy.axes = T, print.auc = T, col = "red3", main = "Backwards AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 
-invisible(roc(df$wage, fitted(step_aic), plot = T, print.thres = mean(as.numeric(df$wage)), legacy.axes = T, print.auc = T, col = "red3", main = "Stepwise AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
+invisible(roc(df$wage, fitted(step_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage))), legacy.axes = T, print.auc = T, col = "red3", main = "Stepwise AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 ```
 
 ```{r}
 # forward AIC
-cm1 <- confusionMatrix(as.factor(ifelse(fitted(f_aic) >= mean(df$wage), "1","0")),
-                            as.factor(df$wage),positive = "1")
+cm1 <- confusionMatrix(as.factor(ifelse(fitted(f_aic) >= mean(as.numeric(as.character(df$wage))), "1","0")),
+                            df$wage, positive = "1")
 # backward AIC
-cm2 <- confusionMatrix(as.factor(ifelse(fitted(b_aic) >= mean(df$wage), "1","0")),
+cm2 <- confusionMatrix(as.factor(ifelse(fitted(b_aic) >= mean(as.numeric(as.character(df$wage))), "1","0")),
                             as.factor(df$wage),positive = "1")
 # stepwise AIC
-cm3 <- confusionMatrix(as.factor(ifelse(fitted(step_aic) >= mean(df$wage), "1","0")),
+cm3 <- confusionMatrix(as.factor(ifelse(fitted(step_aic) >= mean(as.numeric(as.character(df$wage))), "1","0")),
                             as.factor(df$wage),positive = "1")
 ```
 
@@ -182,3 +189,23 @@ cm3$table
 cm3$overall["Accuracy"]
 cm3$byClass[c("Sensitivity","Specificity")]
 ```
+
+```{r}
+final_model <- glm(wage ~ treat + age + educ + race + married + nodegree + 
+    re74 + re75 + treat:re74 + treat:re75 + treat:race + treat:age + 
+    race:re75 + race:married + race:nodegree + educ:race + age:nodegree, 
+    family = binomial(), data = df)
+
+no_race <- glm(wage ~ treat + age + educ + race + married + nodegree + 
+    re74 + re75 + treat:re74 + treat:re75 + treat:age + 
+    race:re75 + race:married + race:nodegree + educ:race + age:nodegree, 
+    family = binomial(), data = df)
+
+anova(no_race, final_model, test = "Chisq")
+```
+
+```{r}
+
+
+```
+
