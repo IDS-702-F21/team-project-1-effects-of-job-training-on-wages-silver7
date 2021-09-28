@@ -1,6 +1,6 @@
 ---
 title: '**Modeling and Representation of Data - Team Project 1**'
-authors: "John Owusu Duah, Michelle Van, Peining Yang, Sarwari Das, Satvik Kishore"
+author: "John Owusu Duah, Michelle Van, Peining Yang, Sarwari Das, Satvik Kishore"
 date: "27th September, 2021"
 output:
   pdf_document: default
@@ -56,7 +56,10 @@ stargazer(dta,header=FALSE,title="Summary Statistics", type='latex')
  
 ## Exploratory Data Analysis
 
-Before the modelling process, we perform an exploratory data analysis to understand the underlying relationships between the possible predictors. 
+Before the modelling process, we perform an exploratory data analysis to understand the underlying relationships between the possible predictors. Fig X shows the underlying distribution of our response variable, growth. 
+
+
+
 
 
 
