@@ -1,0 +1,62 @@
+---
+title: '**Modeling and Representation of Data - Team Project 1**'
+authors: "John Owusu Duah, Michelle Van, Peining Yang, Sarwari Das, Satvik Kishore"
+date: "27th September, 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+# Introduction 
+-add        
+-your       
+-intro            
+-here           
+-and        
+-here       
+-and        
+-here       
+
+
+## Data Pre-processing 
+
+We study a subset of of the data collected by the NSW demonstration. It was originally organized in Lalonde, R. J. (1986), which is our main reference for this analysis.  In the data provided, the treatment group includes male participants for which 1974 earnings can be obtained, and the control group includes all the unemployed males in 1976 whose income in 1975 was below the poverty level.
+
+Refer to appendix for the data dictionary. A summary of the continuous variables can be found in Table 1. The following transformations are applied to the  data:
+
+* Combine 'black' and 'Hispanic' into a 'race' variable, where 0 indicates 'other' races, 1 indicates black men and 2 indicates Hispanic men.
+* Create a new variable 'growth', which is the difference between the real earnings in 1978 and the real earnings in 1974.
+
+We have 614 records in our final data, with 429 participants in the control group and 185 in the treatment group. Large number of zero values are seen in each of the income columns (details in Appendix), but given that the experiment was run on disadvantaged workers lacking job skills, we conclude that this may be by design. Outliers are also seen in the data: in re78 for example, the maximum value is more than 5 times the value of the third quartile. We make note of this, and decide to deal with it in our exploratory analysis. 
+```{r, results = "asis",echo=FALSE,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+library(stargazer)
+dta <- read.csv("/Users/sarwaridas/Desktop/IDS\ 702/TeamProjects/Project1/lalonde.csv",header = TRUE,sep = ",",stringsAsFactors = FALSE)
+
+f_cols= c('treat','black','hispan','married','nodegree') #changing to factor dtype
+dta[f_cols] = lapply(dta[f_cols], as.factor) #changing to factor dtype
+
+dta$race <- with(dta, interaction(black, hispan))
+dta$race <- factor(as.numeric(dta$race))
+# other race set to 1
+dta$race[(dta$race == 1)] <- 0
+# black race set to 2
+dta$race[(dta$race == 2)] <- 1
+# hispanic race set to 3
+dta$race[(dta$race == 3)] <- 2
+
+dta$growth= dta$re78-dta$re74
+
+stargazer(dta,header=FALSE,title="Summary Statistics", type='latex')
+
+#table(dta$treat)
+#lapply(dta, function(x){ length(which(x==0))})
+
+
+```
+ 
+## Exploratory Data Analysis
+
+Before the modelling process, we perform an exploratory data analysis to understand the underlying relationships between the possible predictors. 
+
+
+
