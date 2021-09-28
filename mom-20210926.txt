@@ -1,0 +1,32 @@
+MoM:
+  
+  John showed his EDA on the variable re78
+Satvik showed his eda on the variable re78-re74
+Sarwari showed her eda on re78. she had removed observations with 14 ppl with no income ever and one person with too much income
+Michelle showed her eda for part 2, including the glm model. Residual binned plots looked fine for the most part
+
+Satvik showed basic model for re78-re74. Rsiduals plots look ed fine for the most part. too much income outlier needw to be dealt with
+
+Disscussion on which outcome vairable to use and whether peopl with no income need to be excluded fromm part1 analysis. 
+- Decided to use re78 - re74, without excluding people. (excpet heavy outlier maybe).
+
+explored models with:
+b_growth = re78 - re74 : adj r.squared in 0.05
+growth = re78 - re74|re75/treatment : adj r.squared in 0.02. Residual plot=bad
+re78 : smoothed, non-smoother, different smooths. Residual plot=bad
+
+baseline for part1 : b_growth ~ other stuff.
+
+ask michael about clustering in residual v fitted values
+
+
+
+
+lookup post analysis race impact
+
+roles
+satvik - presenter
+peining - coder
+john - coder
+sara - writer
+michelle - writer

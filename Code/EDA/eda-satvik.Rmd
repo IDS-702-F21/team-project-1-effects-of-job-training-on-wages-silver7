@@ -1,0 +1,75 @@
+---
+title: "eda-satvik"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(data.table)
+library(ggplot2)
+library(magrittr)
+library(readr)
+```
+
+outcome = re78 - re74  
+```{r import}
+df <- fread("../../Data/lalonde.csv")
+df[,outcome := re78 - re74]
+df[,b := as.numeric(re78>0)]
+df[,bf := factor(re78>0)]
+df[,race := c("black", "other")[black+1]]
+df[hispan==1,race := "hispanic"]
+df[,race := factor(race)]
+df[,nodegree_f := factor(nodegree)]
+df[,married_f := factor(married)]
+df[,treat_f := factor(treat)]
+
+df[,growth := re78 - re74]
+df[treat==0,growth := re78 - re75]
+```
+
+Univariate plots and tables  
+```{r univariate}
+ggplot(df) + aes(outcome) + geom_histogram()
+ggplot(df) + aes(age) + geom_histogram()
+ggplot(df) + aes(educ) + geom_histogram()
+print( table(df$treat) )
+print( table(df$race) )
+print( table(df$married) )
+print( table(df$bf) )
+print( table(df$nodegree) )
+```
+
+Relationships between outcome and other variables through bivariate plots  
+```{r bivariate}
+ggplot(df) + aes(x=outcome, y=race) + geom_boxplot()
+ggplot(df) + aes(x=outcome, y=treat_f) + geom_boxplot()
+ggplot(df) + aes(x=outcome, y=married_f) + geom_boxplot()
+ggplot(df) + aes(x=outcome, y=nodegree_f) + geom_boxplot()
+
+table(df$bf, df$race) %>% prop.table(2) 
+table(df$bf, df$treat_f) %>% prop.table(2) 
+table(df$bf, df$married_f) %>% prop.table(2) 
+table(df$bf, df$nodegree_f) %>% prop.table(2) 
+
+ggplot(df) + aes(x=age, y=outcome) + geom_point()
+ggplot(df) + aes(x=educ, y=outcome) + geom_point()
+
+```
+  
+Potenital Interactions through trivariate plots  
+```{r trivariate}
+ggplot(df) + aes(y=outcome, x=race) + geom_boxplot() + facet_wrap(~treat_f)
+ggplot(df) + aes(y=outcome, x=married_f) + geom_boxplot() + facet_wrap(~treat_f)
+ggplot(df) + aes(y=outcome, x=nodegree_f) + geom_boxplot() + facet_wrap(~treat_f)
+
+ggplot(df) + aes(x=age, y=outcome, color=treat_f) + geom_point()
+ggplot(df) + aes(x=educ, y=outcome, color=treat_f) + geom_point()
+```
+

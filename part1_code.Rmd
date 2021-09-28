@@ -1,0 +1,361 @@
+---
+title: 
+author: 
+output:
+  pdf_document: default
+  html_document:
+  word_document: default
+---
+```{r setup, echo=FALSE, include=FALSE}
+options(warn = -1)
+options(xtable.comment = FALSE)
+options(tinytex.verbose = TRUE)
+library(xtable)
+options(xtable.floating = FALSE)
+options(xtable.timestamp = "")
+library(ggplot2)
+library(MASS)
+library(arm)
+library(pROC)
+library(e1071)
+library(caret)
+library(rms) #for VIF
+library(MASS)
+require(gridExtra)
+library(sjlabelled)
+
+knitr::opts_chunk$set(fig.width=10, fig.height=5)
+```
+
+## Summary
+
+## Introduction
+
+## Data
+### Exploratory Data Analysis (EDA)
+
+```{r, results='asis', echo=FALSE}
+policy <- read.delim2("~/Desktop/IDS 702 Model Representation of Data Reading Material/team_project_data/lalondedata.txt", stringsAsFactor = FALSE, header = TRUE, sep = ",")
+
+# collapse black and hispan column into one column called 'race'
+policy$race <- with(policy, interaction(black, hispan))
+policy$race <- factor(as.numeric(policy$race))
+# other race set to 1
+policy$race[(policy$race == 1)] <- 1
+# black race set to 2
+policy$race[(policy$race == 2)] <- 2
+# hispanic race set to 3
+policy$race[(policy$race == 3)] <- 3
+
+# set race as factor variable
+policy$race <- factor(policy$race)
+
+# set treatment as factor variable
+policy$treat <- factor(policy$treat)
+
+# set married as factor variable
+policy$married <- factor(policy$married)
+
+# set nodegree as factor variable
+policy$nodegree <- factor(policy$nodegree)
+
+# convert earnings to numeric
+policy$re78 <- as.numeric(policy$re78)
+policy$re75 <- as.numeric(policy$re75)
+policy$re74 <- as.numeric(policy$re74)
+
+# create a response variable called growth
+policy$growth <- policy$re78 - policy$re74
+#policy$growth_uniq <- ifelse(policy$treat == 0, policy$re78-policy$re75, policy$re78-policy$re74)
+
+# create descriptive factor labels when addressing question on logistic regression questions
+#policy$treat <- factor(policy$treat , levels=c(0,1),labels=c("Control","Trained"))
+
+# centering option to handle multicollinearity if it exists in final model
+policy$age_c <- c(scale(policy$age, scale=F))
+policy$educ_c <- c(scale(policy$educ, scale=F))
+policy$re75_c <- c(scale(policy$re75, scale=F))
+
+# remove outlier
+policy= (policy[!(policy$re78 > 40000),])
+
+#table(babies$parity)
+str(policy)
+dim(policy)
+```
+
+We checked for missing data and found none. The zero (0) values in  annual earnings are meaningful to the inferential questions asked and are not being treated like missing values
+
+```{r, results='asis', echo=FALSE}
+miss_data = colSums(is.na(policy))
+miss_data
+```
+
+```{r, echo=FALSE}
+ggplot(data=policy, aes(x=growth)) + geom_histogram(aes(y=..density..), color="black", linetype="dashed", bins=20, fill=rainbow(20)) + geom_density(alpha=.25, fill="lightblue") + scale_fill_brewer(palette="Blues") + labs(title="Distribution of Growth in Earnings from 1974 to 1978", y="Frequency", x="Growth in Earnings") + theme_classic() + theme(legend.position="none")
+```
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=treat, y=growth, fill=treat)) + geom_boxplot() + labs(title="Distribution of Growth in Earnings from 1974 to 1978 Versus Training Status", y="Growth in Earnings", x="Training") + theme_classic() + scale_fill_discrete(labels=c("Were Not Trained","Were Trained"))
+```
+
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=race, y=growth, fill=race)) + geom_boxplot() + labs(title="Distribution of Growth in Earnings from 1974 to 1978 Versus Race", y="Growth in Earnings", x="Race") + theme_classic() + scale_fill_discrete(labels=c("Other Races","Black","Hispanic"))
+```
+
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=nodegree, y=growth, fill=nodegree)) + geom_boxplot() + labs(title="Distribution of Growth in Earnings from 1974 to 1978 Versus Whether Participant Dropped Out of High School", y="Growth in Earnings", x="Whether Participant Dropped Out of High School") + theme_classic() + scale_fill_discrete(labels=c("Did not Drop out of High School","Dropped out of High School"))
+```
+
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=married, y=growth, fill=married)) + geom_boxplot() + labs(title="Distribution of Growth in Earnings from 1974 to 1978 Versus Marital Status", y="Growth in Earnings", x="Marital Status") + theme_classic() + scale_fill_discrete(labels=c("Not Married","Married"))
+```
+
+```{r, echo=FALSE}
+ggplot(policy, aes(x=age, y=growth)) + geom_point() + labs(title="Scatter Plot of Growth in Earnings from 1974 to 1978 vs Age", y="Growth in Earnings", x="Age")
+```
+
+
+```{r, echo=FALSE}
+ggplot(policy, aes(x=educ, y=growth)) + geom_point() + labs(title="Scatter Plot of Growth in Earnings vs Years of Education", y="Growth in Earnings", x="Years of Education")
+```
+
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=treat, y=growth, fill=treat)) +
+  geom_boxplot() + #coord_flip() +
+  labs(title="Interaction Between Training Status and Race",x="Training Status",y="Growth in Earnings") + 
+  theme_classic() + facet_wrap( ~ race,ncol=4) + scale_fill_discrete(labels=c("Not Trained","Trained"))
+```
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=treat, y=growth, fill=treat)) +
+  geom_boxplot() + #coord_flip() +
+  labs(title="Interaction Between Training Status and High School Drop Out Status",x="Training Status",y="Growth in Earnings") + 
+  theme_classic() + facet_wrap( ~ nodegree,ncol=4) + scale_fill_discrete(labels=c("Not Trained","Trained"))
+```
+
+```{r, echo=FALSE}
+ggplot(policy,aes(x=educ, y=growth)) +
+  geom_point(alpha = .5,colour="blue4") +
+  geom_smooth(method="lm",col="red3") + theme_classic() +
+  labs(title="Earnings vs Years of Education by High School Dropout Status",x="Years of Education",y="Growth in Earnings") +
+  facet_wrap( ~ nodegree,ncol=4)
+```
+It appears that we lack data for higher values of earnings for participants who did not drop out of high school, and lower values of earnings for participants who dropped out of high school. Thus, we will not consider this interaction in our baseline model.
+
+
+## Model
+
+### Selection of Baseline Model
+```{r, echo=FALSE}
+baselinemodel <- lm(formula=growth ~ treat + age + married + educ + race + nodegree, data=policy)
+summary(baselinemodel)
+```
+
+### Model Assessment of Baseline Model
+
+*Assessment of Linearity*
+
+```{r, echo=FALSE}
+ggplot(baselinemodel, aes(x=educ, y=baselinemodel$residual)) + geom_point(alpha=0.7) + geom_hline(yintercept = 0, col="red3") + labs(y="Residuals", x="Years of Education")
+```
+
+```{r, echo=FALSE}
+ggplot(baselinemodel, aes(x=age, y=baselinemodel$residual)) + geom_point(alpha=0.7) + geom_hline(yintercept = 0, col="red3") + labs(y="Residuals", x="Age")
+```
+
+*Assessment of Independence and Equal Variance in the Error Term*
+
+We evaluated the assumptions of independence and equal variance in the error by checking the plot of residuals versus fitted values
+
+```{r, echo=FALSE}
+plot(baselinemodel,which=1,col=c("blue4"))
+```
+
+*Assessment of Normality in the Error Term*
+
+```{r, echo=FALSE}
+plot(baselinemodel,which=2,col=c("blue4"))
+```
+
+*Assessment of Outliers*
+
+```{r, echo=FALSE}
+plot(baselinemodel,which=5,col=c("blue4"))
+```
+
+*Model Selection*
+
+Forward Model Selection with AIC
+```{r, echo=FALSE}
+nullmodel <- lm(formula = growth ~ treat, data=policy)
+fullmodel <- lm(formula = growth ~ treat + educ_c + race + nodegree + married + re75_c + educ_c*(treat + age_c + race + nodegree + married) + treat*(race + nodegree + married + age_c) + race*(nodegree + married) + age_c:married + nodegree:married, data=policy)
+stepwise_aic_model <- step(nullmodel, scope=formula(fullmodel), direction="both", trace=0)
+policy$re75sq <- (policy$re75)^2
+policy$age_csq <- (policy$age_c)^2
+selectedmodel <- lm(formula = growth ~ treat + re75 + age_c + treat:age_c, data = policy)
+summary(selectedmodel)
+```
+
+*Assessment of Linearity*
+
+```{r, echo=FALSE}
+ggplot(selectedmodel, aes(x=re75, y=selectedmodel$residual)) + geom_point(alpha=0.7) + geom_hline(yintercept = 0, col="red3") + labs(y="Residuals", x="Years of Education")
+```
+
+
+```{r, echo=FALSE}
+ggplot(selectedmodel, aes(x=age_c, y=selectedmodel$residual)) + geom_point(alpha=0.7) + geom_hline(yintercept = 0, col="red3") + labs(y="Residuals", x="Age_c")
+```
+
+*Assessment of Independence and Equal Variance in the Error Term*
+
+We evaluated the assumptions of independence and equal variance in the error by checking the plot of residuals versus fitted values
+
+```{r, echo=FALSE}
+plot(selectedmodel,which=1,col=c("blue4"))
+```
+
+*Normality*
+
+```{r, echo=FALSE}
+plot(selectedmodel,which=2,col=c("blue4"))
+```
+
+We carried out several iterations of transformations of the variables to improve the condition of normality in the error term but no noticeable improvement was found. Since the points do not sharply deviate from the 45 degree line, our model does not violate the normality assumption.
+
+
+*Assessment of Outliers*
+
+```{r, echo=FALSE}
+plot(selectedmodel,which=5,col=c("blue4"))
+```
+
+There are no outliers with high leverage and influential points.
+
+
+*Assessment of Multicollinearity*
+
+```{r, echo=FALSE, results='asis'}
+vif_table <- vif(selectedmodel); vif_table
+
+```
+
+The highest Variance Inflation Factor (VIF) was 1.23, which is substantially less than the threshold for concern.
+
+
+### Final Model Results
+Below is a summary of our final model
+
+```{r, echo=FALSE, results='asis'}
+selectedmodel <- lm(formula = growth ~ treat + re75 + age_c + treat:age_c, data = policy)
+summary(selectedmodel)
+# kindly remove comment from xtable command and delete summary before knitting markdown
+#xtable(summary(selectedmodel))
+```
+
+The mathematical equation of the final model is:
+
+
+$y_{i}(re78c- re74) = \beta _{0} + \beta _{1}x_{i1}(age)+ \beta _{2}x_{i2}(re75)+ \beta _{3j}x_{i3}(treat)+\beta _{4j}x_{i1}x_{i4}(treat:age)$
+
+
+All the predictor variables in the final model have a significant effect on real annual earnings. These predictor variables are the training status ('treat'), real annual earnings in 1975 ('re75), age ('age_c') and the interaction between training status and age ('treat1:age_c').
+
+
+Question 1:
+
+There is statistically significant evidence that training has positive relationship with the growth of income from 1974 to 1978, accounting for other effects and interaction between job training and age. The difference in real annual earnings from 1974 to 1978 increases by $2,254.80 for participants who were trained compared to participants who were not trained, keeping all other predictor variables constant.
+
+
+Question 2:
+
+After computing"two-sided" confidence intervals for the effect of training.
+
+```{r, results='asis', echo=FALSE}
+ci <- confint(selectedmodel)
+ci
+# kindly remove comment from xtable command and delete confidence interval output before knitting markdown
+#xtable(ci)
+```
+
+Accounting for all other predictors, we are 95% confident that the difference in real annual earnings from 1974 to 1978 increases by an amount between $953.20 and $3,556.41 for participants who were trained compared to participants who were not trained.
+
+
+Question 3:
+
+```{r, echo=FALSE}
+interactionmodel <- lm(formula = growth ~ treat + re75 + age_c + treat:age_c + treat:race, data = policy)
+anova_table <- anova(selectedmodel, interactionmodel)
+anova_table
+# kindly remove comment from xtable command and delete anova_table output before knitting markdown
+#xtable(anova_table)
+```
+
+After carrying out an F-test to determine if the effect of training on earnings differs by demographic groups, we had a p-value of 0.447. This means there is no statistically significant evidence that the effect of training on earnings differs by demographic groups.
+
+
+Question 4:
+
+Apart from the training status of participants, the age, real annual earnings in 1975 and interactions between training status and age have a significant effect on the growth in real annual earnings from 1974 to 1978. The predictor variable that had the most effect on the growth in real annual earnings is the age of participants. Keep all other predictor variables constant, the growth in real annual earnings decreased by $149.52 for every year older that a participant gets. Also, keeping all other predictor variables constant, the growth in real annual earnings decreased by $0.41 for every dollar increase in real annual earnings for 1975.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

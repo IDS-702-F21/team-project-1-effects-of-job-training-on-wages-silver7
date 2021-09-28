@@ -1,0 +1,71 @@
+---
+title: "part 2"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(data.table)
+library(arm)
+library(ggplot2)
+library(magrittr)
+library(readr)
+```
+
+```{r import}
+df <- fread("../../Data/lalonde.csv")
+df[,outcome := re78 - re74]
+df[,b := as.numeric(re78>0)]
+df[,bf := factor(re78>0)]
+df[,race := c("black", "other")[black+1]]
+df[hispan==1,race := "hispanic"]
+df[,race := factor(race)]
+df[,race := relevel(race,"other")]
+df[,nodegree_f := factor(nodegree)]
+df[,married_f := factor(married)]
+df[,treat_f := factor(treat)]
+
+df[,growth := re78 - re74]
+df[treat==0,growth := re78 - re75]
+```
+
+```{r eda}
+print( table(df$bf) )
+table(df$bf, df$race) %>% prop.table(2) 
+table(df$bf, df$treat_f) %>% prop.table(2) 
+table(df$bf, df$married_f) %>% prop.table(2) 
+table(df$bf, df$nodegree_f) %>% prop.table(2)
+
+library(magrittr)
+interact_df = data.frame(
+  treat0 = df[df$treat==0,] %$% table(race, b) %>% prop.table(1) %>% c %>% extract(4:6),
+  treat1 = df[df$treat==1,] %$% table(race, b) %>% prop.table(1) %>% c %>% extract(4:6),
+  race = levels(df$race)
+)
+
+```
+
+```{r modeling}
+m0 = glm(b ~ re74 + re75 + treat + married + nodegree + race + age + educ, data=df, family = binomial())
+binnedplot(m0$fitted.values, m0$residuals)
+binnedplot(df$age, m0$residuals, xlab="age")
+binnedplot(df$educ, m0$residuals, xlab="educ")
+binnedplot(df$re74, m0$residuals, xlab="re74")
+binnedplot(df$re75, m0$residuals, xlab="re75")
+
+m_full = glm(b ~ treat*(re74 + re75 + married + nodegree + race + age + educ) + 
+                 race*(re74 + re75 + married + nodegree + age + educ) + 
+                 married*(re74 + re75 + nodegree + race + age + educ) +
+                 nodegree*(re74 + re75 +  age + educ) ,
+               data=df, family = binomial())
+m_null = glm(b~treat,df, family = binomial())
+
+m_update = step(m_null, scope = formula(m0), direction="both",trace=0) 
+```
+
+
