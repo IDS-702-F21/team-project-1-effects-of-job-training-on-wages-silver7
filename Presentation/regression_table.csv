@@ -1,0 +1,7 @@
+"","Estimate","Std. Error","t value","Pr(>|t|)"
+"Intercept",2064.19,510.61,4.04,6e-05
+"Received Training",2285.04,697.88,3.27,0.0011
+"Age Centered",-205.56,49.56,-4.15,3.8e-05
+"Is Married",-1731.92,685.1,-2.53,0.012
+"Interaction of ""Received Training"" and ""Age Centered""",283.57,85.81,3.3,0.001
+"Interaction of ""Married"" and ""Age Centered""",132.82,67.74,1.96,0.05
