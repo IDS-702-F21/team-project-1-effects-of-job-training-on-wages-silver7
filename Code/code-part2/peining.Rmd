@@ -98,11 +98,11 @@ binnedplot(df$age, resids1, xlab="Age",
 ```
 
 ```{r}
-full_glm <- glm(wage ~ treat + age + educ + race + married + nodegree + re74 + re75 + 
-                  treat*(re74 + re75 + married + nodegree + race + age + educ) + 
-                  race*(re74 + re75 + married + nodegree + age + educ) + 
-                  married*(re74 + re75 + nodegree + age + educ) +
-                  nodegree*(re74 + re75 +  age + educ), data = df, family = binomial())
+full_glm <- glm(wage ~ treat + age + educ + race + married + nodegree + re74 + 
+                  treat*(re74 + married + nodegree + race + age + educ) + 
+                  race*(re74 + married + nodegree + age + educ) + 
+                  married*(re74 + nodegree + age + educ) +
+                  nodegree*(re74 +  age + educ), data = df, family = binomial())
 null_glm <- glm(wage ~ treat, data = df, family = binomial())
 ```
 
@@ -192,20 +192,14 @@ cm3$byClass[c("Sensitivity","Specificity")]
 
 ```{r}
 final_model <- glm(wage ~ treat + age + educ + race + married + nodegree + 
-    re74 + re75 + treat:re74 + treat:re75 + treat:race + treat:age + 
-    race:re75 + race:married + race:nodegree + educ:race + age:nodegree, 
+    re74 + treat:re74 + treat:race + treat:age + race:married + race:nodegree + educ:race + age:nodegree, 
     family = binomial(), data = df)
 
 no_race <- glm(wage ~ treat + age + educ + race + married + nodegree + 
-    re74 + re75 + treat:re74 + treat:re75 + treat:age + 
-    race:re75 + race:married + race:nodegree + educ:race + age:nodegree, 
+    re74 + treat:re74 + treat:age + race:married + race:nodegree + educ:race + age:nodegree, 
     family = binomial(), data = df)
 
 anova(no_race, final_model, test = "Chisq")
 ```
 
-```{r}
-
-
-```
 
