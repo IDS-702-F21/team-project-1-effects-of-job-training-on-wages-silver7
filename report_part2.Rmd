@@ -169,7 +169,7 @@ invisible(roc(df$wage_fact, fitted(step_aic), plot = T, print.thres = mean(as.nu
 
 Forward AIC, backwards AIC, and step-wise AIC model selection were performed on Model 2. Both forward AIC and step-wise AIC returned the following $x_{i}$ predictors: treat, age, re74, race, treat$*$age, re74$*$race, and treat$*$race, while backwards AIC returns the following $x_{i}$ predictors: treat, age, educ, race, married, nodegree, re74, treat$*$race, treat$*$age, race$*$re74, race$*$married, race$*$nodegree, educ$*$race, age$*$nodegree.
 
-The ROC plots are shown below for these 3 selections, as well as the residual binned plots are shown in Appendix 2.3. The residual binned plots show relatively supportive graphs as most of the points lie within the 95% confidence band. On the other hand,  the AUC for backwards AIC gives 71.3%, while forward AIC and backwards AIC give 66.7%. Ultimately, backwards AIC was chosen for our final model due to the higher AUC and the higher number of interactions included in the backwards AIC. 
+The ROC plots are shown above for these 3 selections, as well as the residual binned plots are shown in Appendix 2.3. The residual binned plots show relatively supportive graphs as most of the points lie within the 95% confidence band. On the other hand,  the AUC for backwards AIC gives 71.3%, while forward AIC and backwards AIC give 66.7%. Ultimately, backwards AIC was chosen for our final model due to the higher AUC and the higher number of interactions included in the backwards AIC. 
 
 ## Final Model
 
