@@ -20,13 +20,12 @@ library(xtable)
 options(xtable.comment = FALSE)
 ```
 ### Summary
-This report evaluates the relationship between the odd ratio of non-zero wages and its predictors. It primarily focuses on the influence of training and different demographic groups on the non-zero wages outcome. Logistic regression was used to produce a model that concluded workers who received training tend to have higher odd ratio of non-zero outcomes than those who did not. Moreover, the demographic groups prove to be statistically significant to this model and have effects to the resulting odd-ratio. Moreover, this report will detail several interactions between the predictors that contribute significantly to the non-zero outcome.
+This report evaluates the relationship between the odd ratio of non-zero wages and its predictors. It primarily focuses on the influence of training and different demographic groups on the non-zero wages outcome. Logistic regression was used to produce a model that concluded workers who received training tend to have higher odd ratio of non-zero outcomes than those who did not. Moreover, the demographic groups prove to be statistically significant to this model and have effects to the resulting odd-ratio. This report will detail several interactions between the predictors that contribute significantly to the non-zero outcome.
 
 ### Introduction
-
 Using the same data from Part One, the likelihood of workers who received training earning non-zero wages more than those who did not receive training is explored in this report. The effects of receiving training on the odds of having non-zero wages are further analysed, as well as various interactions between the predictors. Moreover, the effects of the association between different demographic groups and training on the likelihood of workers receiving non-zero wages are also evaluated in this report. 
 
-## Data
+### Data
 
 For this part of the report, the likelihood of workers who received non-zero wages and zero wages is determined by their wages in 1978 (re78). This will be referred to as the wage response variable, and is based upon whether re78 is zero or non-zero. As it is a binary variable, a summary table has been drawn in Appendix 1.1 to show the summary statistics of the data provided.
 
@@ -48,9 +47,9 @@ df$wage <- ifelse(df$re78 > 0, 1, 0)
 df$wage_fact <- factor(df$wage)
 ```
 
-As shown in the summary statistics, there are more participants earning wages than people not earning wages in 1978. The wage_fact (wage factored) shows that 143 of the participants have zero wages and 471 participants are receiving wages in 1978. There is also an unbalanced distribution in races, where there are only 72 Hispanics compared to the 299 Black participants and participants of other races. Moreover, there are more more than double the number of participants who did not receive treatments (429) compared to those who did receive training (185). The mean wages of the Black participants is \$5677.02 and that of Hispanic is \$7106.
+As shown in the summary statistics, there are more participants earning wages than people not earning wages in 1978. The wage_fact (wage factored) shows that 143 of the participants have zero wages and 471 participants are receiving wages in 1978. There is also an unbalanced distribution in races, where there are only 72 Hispanics compared to the 299 Black participants and participants of other races. Moreover, there are more than double the number of participants who did not receive treatments (429) compared to those who did receive training (185). 
 
-Conditional probability of wage given the predictors were explored. The table of the conditional probability of wage given the treat variable shows that for both zero and non zero outcomes given that the participant received treatment or not are very similar. This result is also similar for married and nodegree where the outcome probability between zero and non zero groups between the binary predictors are roughly the same. For the different demographic groups, the likelihood for zero wage given that the participant is Hispanic is lower than both Black and participants of other races. However, the likelihood for non-zero wages given that participant is Hispanic is higher than for Black participants and other participants. These can be shown in Appendix 1.2. 
+Conditional probabilities of wage given the predictors were explored. The table below shows the conditional probability of wage given the treat variable - the likelihood for both zero and non zero outcomes given that the participant received treatment or not are very similar. This result is also similar for married and nodegree where the outcome probability between zero and non zero groups between the binary predictors are roughly the same. For the different demographic groups, the likelihood for zero wage given that the participant is Hispanic is lower than both Black and participants of other races. However, the likelihood for non-zero wages given that participant is Hispanic is higher than for Black participants and other participants. (Appendix 1.2)
 
 ```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%' }
 wage_treat <- apply(table(df[,c('wage_fact', 'treat')]) / sum(table(df[,c('wage_fact', 'treat')])), 2, function(x) x/sum(x))
@@ -69,7 +68,7 @@ interact_df = data.frame(
 ```
 
 
-Interactions between the predictor variables are also assessed, where the conditional probability table of non-zero wages between treat and race is shown in Appendix 1.6. The likelihood of Hispanics getting a non-zero wage given training is 100%, and the likelihood of Hispanics getting a non-zero wage given no training is 80.3%. This trend is similar for Black participants and participants of other races where the likelihood of getting a non-zero wage is greater if they underwent training. It is also worth noting once again that the there is nearly not enough data for Hispanic participants compared to other and Black participants. Interactions between degree and train vs non-zero wage outcome can be shown in Appendix 1.4. 
+Interactions between the predictor variables are also assessed, where the conditional probability table of non-zero wages between treat and race is shown in Appendix 1.6. The likelihood of Hispanics getting a non-zero wage given training is 100%, and the likelihood of Hispanics getting a non-zero wage given no training is 80.3%. This trend is similar for Black participants and participants of other races where the likelihood of getting a non-zero wage is greater if they underwent training. It is also worth noting again that the there is not enough data for Hispanic participants compared to other and Black participants. Interactions between degree and train vs non-zero wage outcome can be shown in Appendix 1.4. 
 
 
 The following binned plots are shown to evaluate the interactions between age v train and educ v train on the non-zero wage outcome. The non-zero wage outcome v age v train show two different trends, where the training v age interactions shows a decrease in outcome around 22 - 25 year in age before increasing again at 30 years old. This is different compared to age v no training plot that shows a decrease in outcome at 30 years old before increasing at 36 years old, and then decreasing at around 42 years old. For educ v train and age v no-train on the non-zero wage outcome (Appendix 1.5), it is difficult to pinpoint a trend due to the lack of data points in the train v educ v wage outcome plot. Hence, the interactions of predictors on the response variable will be further analysed in this report. 
@@ -97,24 +96,21 @@ binnedplot(y=df$wage[df$treat==1],
 
 ```
 
-## Model
+### Model
 ### Model Building
 Given that the response variable is a binary variable, the relationship between non-zero outcome and its predictors is analysed using a logistic regression, as shown below:
 
-$Pr[y_{i} = 1|x_{i}] = \pi_{i}$ and  $Pr[y_{i} = 0|x_{i}] = 1- \pi_{i}$
-
-where $y_{i}|x_{i}  \sim Bernoulli(\pi_{i})$
+$Pr[y_{i} = 1|x_{i}] = \pi_{i}$ and  $Pr[y_{i} = 0|x_{i}] = 1- \pi_{i}$ where $y_{i}|x_{i}  \sim Bernoulli(\pi_{i})$
 
 and $log(\frac{\pi_{i}}{1-\pi_{i}}) = \beta_{0} + \beta_{1}x_{i1} + \beta_{2}x_{i2} + .... + \beta_{p}x_{ip}$  
+
 Here, $i$ is the observation index, $y$ is the outcome variable, $x$ is the predictor variables, and $p$ is the number of predictor variables.  
 
 ### Model 1
 
-For the first model, a model will be fitted for the wage response variable and all its predictors to see main effects. See Appendix 2.1 for the full summary table.
+For model 1, a model will be fitted for the wage response variable and all its predictors to see main effects. The $x_{i}$ for model 1 includes the following predictors: treat, age, educ, race, married, nodegree, and re74. See Appendix 2.1 for the full summary table.
 
-$P(wage_fact = 1) = \frac{1}{1 + exp(-(\beta _{0} + \beta_{1}treat + \beta_{2}age + \beta_{3}edic + \beta_{4}race + \beta_{5}married + \beta_{6}nodegree + \beta_{7}re74))}$
-
-The residual deviance (634.79) is slightly lower than the null deviance (666.50), which tells us that the predictors are better than the worst model. Compared to the baseline(male participant of age ~27 years old and race as Black), the p-values for age, race(Other) and re74 show that they are statistically significant where the null hypothesis can be rejected. This suggests that with every unit increase in re74 whilst keeping the rest of the predictors constant, the odds ratio of a non-zero wage is expected to increase by exp(6.011e-5). It also suggests that as the participant gets older by one year, odds ratio of a non-zero wage is expected to increase by exp(-3.887e-2). If race(other) increases per unit,  the odds ratio of a non-zero wage is expected to increase by exp(-5.155e-1). The The rest of the predictors have high values and suggest that they are significantly insignificant. However, we will continue to explore the relationship between the response and predictor variables further in this report.
+The residual deviance (634.79) is slightly lower than the null deviance (666.50), which tells us that the predictors are better than the worst model. Compared to the baseline(male participant of age ~27 years old and race as Black), the p-values for age, race(Other) and re74 show that they are statistically significant where the null hypothesis can be rejected. This suggests that with every unit increase in re74 whilst keeping the rest of the predictors constant, the odds ratio of a non-zero wage is expected to increase by $e^{6.011e-5}$. It also suggests that as the participant gets older by one year, odds ratio of a non-zero wage is expected to increase by $e^{-3.887e-2}$. If race(other) increases per unit,  the odds ratio of a non-zero wage is expected to increase by $e^{-5.155e-1}$. The rest of the predictors have high values and suggest that they are significantly insignificant. However, we will continue to explore the relationship between the response and its predictor variables further in this report.
 
 A residual binned plot was plotted for the non-zero wage probabilities v average residuals. This shows a pretty random dispersion of points, with all the points inside the 95% confidence band.
 
@@ -135,7 +131,7 @@ A binned plot for age v residuals is plotted above. Only 1 point lies outside th
 
 ### Model 2
 
-For model 2, we added the interactions between the predictors in our logistic regression model. See Appendix 2.2 for the summary table for this model.
+For model 2, we added the interactions between the predictors in our logistic regression model.(Appendix 2.2 for summary)
 
 
 ```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
@@ -147,9 +143,7 @@ full_glm <- glm(wage_fact ~ treat + age + educ + race + married + nodegree + re7
 null_glm <- glm(wage_fact ~ treat, data = df, family = binomial())
 ```
 
-The residual deviance (589.07) is lower than the null deviance (666.50), which also tells us that the predictors are better than the worst model. 
-
-As shown, race (Hispanic) shows it is statistically significant from the low p-value, where we can reject the null hypothesis. This suggests that with every unit increase in raceHispanic, the odds  ratio of a non-zero wage increases by exp(1.001e1).. With every unit increase in re74 whilst keeping the rest of the predictors constant, the odds ratio of a non-zero wage is expected to increase by exp(1.408e-4). As the interactions between raceHispanic and noDegree (contrasted to the baseline of raceBlack and degree) increases per unit, the non-zero wage odd ratio is expected to increase by exp(-2.834e0). This is similar to the interactions between hispanic & nodegree and edu:raceHispanic, where with a unit increase, the non-zero odd ratio is expected to increase by exp(-3.869e0) and exp(-5.629e-1).
+As shown, race (Hispanic) shows that it is statistically significant due to its low p-value; thus, we can reject the null hypothesis. With every unit increase in raceHispanic, the odds ratio of a non-zero wage increases by $e^{1.001e1}$.. With every unit increase in re74 whilst keeping the rest of the predictors constant, the odds ratio of a non-zero wage is expected to increase by $e^{1.408e-4}$. As the interactions between raceHispanic and noDegree (contrasted to the baseline of raceBlack and degree) increases per unit, the non-zero wage odd ratio is expected to increase by $e^{-2.834e0}$. This is similar to the interactions between hispanic & nodegree and edu:raceHispanic, where with a unit increase, the non-zero odd ratio is expected to increase by $e^{-3.869e0}$ and $e^{-5.629e-1}$.
 
 A f chi-squared test on model 1 and model 2 is carried out, giving a p-value of 0.048. This tells us that interactions are statistically significant. Therefore, we can confirm that interactions do influence the model and influence the relationship between non-zero outcome and its predictors. 
 
@@ -158,11 +152,7 @@ invisible(anova(glm1, full_glm, test = "Chisq"))
 ```
 
 ## Model Selection
-Forward AIC, backwards AIC, and step-wise AIC model selection were performed on Model 2. Both forward AIC and step-wise AIC returned $P(wage_fact = 1) = \frac{1}{1 + exp(-(\beta _{0} +  \beta_{1}treat +  \beta_{2}age + \beta_{3}re74 + \beta_{4}race  +  \beta_{5}treat*age + \beta_{6}re74*race +}$
-$\frac{}{\beta_{7}treat*race}$, 
-
-while backwards AIC returns $P(wage_fact = 1) = \frac{1}{1 + exp(-(\beta _{0} +  \beta_{1}treat +  \beta_{2}age + \beta_{3}educ + \beta_{4}race  +  \beta_{5}married + \beta_{6}nodegree +}$
-$\frac{1}{\beta_{7}re74  +  \beta_{8}treat*race + \beta_{9}treat*age + \beta_{10}race*re74  +  \beta_{11}race*married + \beta_{12}race*nodegree + \beta_{13}educ*race + \beta_{14}age*nodegree))}$
+Forward AIC, backwards AIC, and step-wise AIC model selection were performed on Model 2. Both forward AIC and step-wise AIC returned the following $x_{i}$ predictors: treat, age, re74, race, treat$*$age, re74$*$race, and treat$*$race, while backwards AIC returns the following $x_{i}$ predictors: treat, age, educ, race, married, nodegree, re74, treat$*$race, treat$*$age, race$*$re74, race$*$married, race$*$nodegree, educ$*$race, age$*$nodegree.
 
 The ROC plots are shown below for these 3 selections, as well as the residual binned plots are shown in Appendix 2.3. The residual binned plots show relatively supportive graphs as most of the points lie within the 95% confidence band. On the other hand,  the AUC for backwards AIC gives 71.3%, while forward AIC and backwards AIC give 66.7%. Ultimately, backwards AIC was chosen for our final model due to the higher AUC and the higher number of interactions included in the backwards AIC. 
 
@@ -183,8 +173,7 @@ invisible(roc(df$wage_fact, fitted(step_aic), plot = T, print.thres = mean(as.nu
 
 ## Final Model
 
-The final model is $P(wage_fact = 1) = \frac{1}{1 + exp(-(\beta _{0} +  \beta_{1}treat +  \beta_{2}age + \beta_{3}educ + \beta_{4}race  +  \beta_{5}married + \beta_{6}nodegree + \beta_{7}re74  +  \beta_{8}treat*race + }$
-$\frac{}{\beta_{9}treat*age + \beta_{10}race*re74  +  \beta_{11}race*married + \beta_{12}race*nodegree + \beta_{13}educ*race + \beta_{14}age*nodegree))}$  
+The $x_{i}$ for the final model includes the following predictors: treat, age, educ, race, married, nodegree, re74, treat$*$race, treat$*$age, race$*$re74, race$*$married, race$*$nodegree, educ$*$race, age$*$nodegree
 
 The residual deviance (600.6) is lower than the null deviance (666.5), which also tells us that the predictors are better than the worst model. 
 
@@ -204,17 +193,17 @@ invisible(anova(no_race, final_model, test = "Chisq"))
 ```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 invisible(vif(final_model))
 ```
-A VIF test was conducted (table shown in Appendix 2.5) to investigate the multicollinearity between the predictors. Treat predictor gave a 24.77, raceHispanic gave a 54.95, raceOther gave 60.5, and nodegree gave a 14.74 VIF value. This suggests high multicollinearity as they have VIF >= 10. 
+A VIF test was conducted (Appendix 2.5) to investigate the multicollinearity between the predictors. Treat predictor gave a 24.77, raceHispanic gave a 54.95, raceOther gave a 60.5, and nodegree gave a 14.74 VIF value. These categorical predictors resulted in VIF values of >= 10, which indicates high multicollinearity. Although this suggests high correlation for these predictors, it is not much of a concern as categorical predictors by default have high VIF values.
 
-The race(Hispanic) gives a 0.0016 p-value, indicating that it is statistically significant and that we can reject the null hypothesis. As a unit of raceHispanic increases against the baseline (raceBlack), the odd ratio of non-zero wage is expected to increase by exp(8.9e-2) = 1.09. Although the p-value is high for other races, the odd ratio of non-zero wage is expected to increase by exp(7.53e-1) = 2.12 as raceOther increases per unit. 
+The race(Hispanic) gives a 0.0016 p-value, indicating that it is statistically significant and that we can reject the null hypothesis. As a unit of raceHispanic increases against the baseline (raceBlack), the odd ratio of non-zero wage is expected to increase by $e^{8.9e-2}$ = 1.09. Although the p-value is high for other races, the odd ratio of non-zero wage is expected to increase by $e^{7.53e-1}$ = 2.12 as raceOther increases per unit. 
 
-Several of the race interactions are shown to be statistically significant. The interaction between raceHispanic and married predictors give a 0.0048 p-value, suggesting that as this interaction increases per unit (against baseline raceBlack and not married) whilst keeping all the other predictors constant, the non-zero wage odd ratio is expected to increase by exp(-2.69e0)= 0.068. This is also the case for raceOther and no degree, where the odd ratio of non-zero wages is expected to increase by exp(-3.35)= 0.035. Finally, the interaction between raceHispanic and education is also statistically significant, with a p-value of 0.0047, where the odd ratio of non-zero wages is expected to increase by exp(-4.91e-1)=0.61 as the interaction unit increases. 
+Several of the race interactions are shown to be statistically significant. The interaction between raceHispanic and married predictors give a 0.0048 p-value, suggesting that as this interaction increases per unit whilst keeping all the other predictors constant, the non-zero wage odd ratio is expected to increase by $e^{-2.69e0}$ = 0.068. This is also the case for raceOther and no degree, where the odd ratio of non-zero wages is expected to increase by $e^{-3.35}$ = 0.035. Finally, the interaction between raceHispanic and education is also statistically significant, with a p-value of 0.0047, where the odd ratio of non-zero wages is expected to increase by $e^{-4.91e-1}$ =0.61 as the interaction unit increases. 
 
 This analysis shows that race is an important factor, where the effect of raceHispanic and most of its interactions contribute significantly to the overall model. To confirm this, a chi-squared test was performed on the final model with the race variable and interactions including race and on the final model without the race predictor and its interactions. The resulting p-value is 0.0035, which indicates that race is a contributing factor and is statistically significant to our model. However, it should be noted that even though race has significant effects on the odd-ratio of non-zero wages, the distribution of the different demographic groups is unbalanced as there isn't enough data on Hispanics.
 
-Having no degree is also statistically significant with a low p-value of 0.02. It suggests that if the participant has no degree (against the baseline of having a degree), the odd ratio of non-zero wage is expected to increase by exp(1.88)= 6.55. The wage in 1974 predictor suggests that as re74 increases per unit, the odd ratio non-zero wage is expected to increase by exp(1.04e-4)= 1.00. Re74 is statistically significant, and therefore we can reject the null hypothesis. The interaction of age and no degree (baseline is ~27 years old with a degree) is expected to increase the odd-ratio of the non-zero outcome by exp(-4.8e-2) = 0.95. It also has a low p-value of 0.038, proving to be statistically significant. 
+Having no degree is also statistically significant with a low p-value of 0.02. It suggests that if a participant has no degree (against the baseline of having a degree), the odd ratio of non-zero wage is expected to increase by $e^{1.88}$ = 6.55. The wage in 1974 predictor suggests that as re74 increases per unit, the odd ratio of non-zero wage is expected to increase by $e^{1.04e-4}$ = 1.00. Re74 is statistically significant, and therefore we can reject the null hypothesis. The interaction of age and no degree (baseline is ~27 years old with a degree) is expected to increase the odd-ratio of the non-zero outcome by $e^{-4.8e-2}$  = 0.95. It also has a low p-value of 0.038, proving to be statistically significant. 
 
-If a participant only received training  while all the other predictors remained the same, the non-zero outcome odd ratio is expected to increase by exp(-9.29e-01) = 0.4. Although treat predictor itself does not have a low p-value to be statistically significant on its own, interactions between treat & re74 and treat & age are in fact statistically significant. Treat & re74 has a p-value of 0.040, where the odd ratio of non-zero wages increases by exp(-9.42e-5) = 1 per unit increase (against the baseline of no treatment). Furthermore, as the interaction between treatment and age increases per unit, the odd-ratio of non-zero wages is expected to increase by exp(8.07e-2) = 1.08. The low p-value of 0.0048 shows that this interaction is statistically significant. Performing on a 95% confidence prediction interval on the model gives exp(-2.93e0) , exp(1.36e0). This tells us that the likely range of having treatment is (0.053, 3.91).
+If a participant only received training  while all the other predictors remained the same, the non-zero outcome odd ratio is expected to increase by $e^{-9.29e-01}$ = 0.4. Although treat predictor itself does not have a low p-value to be statistically significant on its own, interactions between treat & re74 and treat & age are in fact statistically significant. Treat & re74 has a p-value of 0.040, where the odds of non-zero wages increases by $e^{-9.42e-5}$ = 1 per unit increase (against the baseline of no treatment). Furthermore, as the interaction between treatment and age increases per unit, the odds of non-zero wages is expected to increase by $e^{8.07e-2}$ = 1.08. The low p-value of 0.0048 shows that this interaction is statistically significant. Performing on a 95% confidence prediction interval on the model gives $e^{-2.93e0}$ , $e^{1.36e0}$. This tells us that the likely range of having treatment is (0.053, 3.91).
 
 ```{r,  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 invisible(confint(final_model, level=0.95))
@@ -230,9 +219,7 @@ binnedplot(fitted(final_model), step_resids, xlab="Pred. probabilities",
 
 ```
 
-This residual binned plot shows that two of the data points lie outside of the 95% confidence band, with majority of the points lying randomly inside the band. This is overall a good residual binned plot. 
-
-The accuracy of the final model is 61.72%, with a sensitivity of 58.6% and specificity of 72%. This gives a relatively moderate balance of sensitivity and specificity. Moreover, as shown, the AUC is 71.3%.
+This residual binned plot shows that two of the data points lie outside of the 95% confidence band, with majority of the points lying randomly inside the band. This is overall a good residual binned plot. The accuracy of the final model is 61.72%, with a sensitivity of 58.6% and specificity of 72%. This gives a relatively moderate balance of sensitivity and specificity. Moreover, as shown, the AUC is 71.3%.
 
 ```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 cm_final <- confusionMatrix(as.factor(ifelse(fitted(final_model) >= mean(as.numeric(as.character(df$wage_fact))), "1","0")), as.factor(df$wage_fact),positive = "1")
@@ -242,7 +229,7 @@ invisible(cm_final$byClass[c("Sensitivity","Specificity")])
 ```
 
 
-## Conclusion
+### Conclusion
 In conclusion, from the model assessment and EDA, workers who receive job training tend to be more likely to have positive wages than worked who do not receive training. The odd ratio of having non-zero wages is expected to increase by 0.4 if the participant received training. The likely range for the effect of training is (0.053, 3.91). There is sufficient evidence that the effects differ by demographic groups, particularly for Hispanic participants. This can be shown by the generally low p-values from raceHispanic predictors and its interaction with married, nodegree, and education. Despite this, there are several limitations to this report that include the lack of data on Hispanic participants, the re75 predictor, and the accuracy of this model. Therefore, to improve this analysis, more and better quality data should be collected for the demographic groups as well as incorporating re75 should be considered to get a higher model accuracy. 
 
 
@@ -251,9 +238,15 @@ In conclusion, from the model assessment and EDA, workers who receive job traini
 
 1.1 
 
-```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
-summary(df[,-1])
+```{r  results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+invisible(summary(df[,-1]))
 ```
+
+```{r pressure, echo=FALSE, out.width = '100%', align='center'}
+knitr::include_graphics("/Users/michellevan/Desktop/summary1.png")
+```
+
+
 
 1.2 
 
@@ -294,7 +287,9 @@ interact_df1 = data.frame(
   treat1 = df[df$treat==1,] %$% table(nodegree, b) %>% prop.table(1) %>% c %>% extract(3:4),
   nodegree = 0:1
 )
-interact_df1
+
+
+knitr::kable(interact_df1,  escape = FALSE, 'pipe', caption = "Conditional probability of wage being non-zero given treat and education", digits=2)
 ```
 
 1.5
@@ -325,18 +320,19 @@ binnedplot(y=df$wage[df$treat==1],
 
 ```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 #Training v race v outcome
-interact_df = data.frame(
+sinteract_df = data.frame(
   treat0 = df[df$treat==0,] %$% table(race, b) %>% prop.table(1) %>% c %>% extract(4:6),
   treat1 = df[df$treat==1,] %$% table(race, b) %>% prop.table(1) %>% c %>% extract(4:6),
   race = levels(df$race)
 )
-#knitr::kable(interact_df,  escape = FALSE, 'pipe', caption = "Conditional probability of wage being non-zero given treat and race", digits=2)
+knitr::kable(interact_df,  escape = FALSE, 'pipe', caption = "Conditional probability of wage being non-zero given treat and race", digits=2)
 ```
 
+\\
 
 2.1 
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 xtable(summary(glm1))
 ```
 
@@ -355,16 +351,16 @@ xtable(summary(f_aic))
 
 ```
 
-Backward AIC
 ```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 xtable(summary(b_aic))
 
 ```
 
+
 2.3
 
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='40%'}
+```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='35%'}
 f_resids <- residuals(f_aic, "resp")
 b_resids <- residuals(b_aic, "resp")
 step_resids <- residuals(step_aic, "resp")
@@ -376,46 +372,65 @@ binnedplot(fitted(f_aic), f_resids, xlab="Pred. probabilities",
 binnedplot(fitted(b_aic), b_resids, xlab="Pred. probabilities",
            col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy", 
            cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7)
-# stepwise AIC
+
+
 binnedplot(fitted(step_aic), step_resids, xlab="Pred. probabilities",
            col.int="red4",ylab="Avg. residuals",main="Binned residual plot",col.pts="navy", 
            cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7)
 ```
 
-2.4 
-Conf
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%'}
+
+
+2.4 
+Confusion Matrix for 1) Forward AIC 2) Backward AIC 3) Stepwise AIC
+
+```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%'}
 # forward AIC
 cm1 <- confusionMatrix(as.factor(ifelse(fitted(f_aic) >= mean(as.numeric(as.character(df$wage_fact))), "1","0")),
                             df$wage_fact, positive = "1")
 # backward AIC
 cm2 <- confusionMatrix(as.factor(ifelse(fitted(b_aic) >= mean(as.numeric(as.character(df$wage_fact))), "1","0")),
                             as.factor(df$wage_fact),positive = "1")
+
 # stepwise AIC
 cm3 <- confusionMatrix(as.factor(ifelse(fitted(step_aic) >= mean(as.numeric(as.character(df$wage_fact))), "1","0")), as.factor(df$wage_fact),positive = "1")
+```
+
+
+```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 # fowards AIC
-cm1$table
-cm1$overall["Accuracy"]
-cm1$byClass[c("Sensitivity","Specificity")]
+#cm1$tables
+#cm1$overall["Accuracy"]
+#cm1$byClass[c("Sensitivity","Specificity")]
+knitr::kable(cm1$table, escape = FALSE, 'pipe',  caption = "Prediction table for forward AIC", digits=2, position = "float_left")
+knitr::kable(cm1$overall["Accuracy"], escape = FALSE, 'pipe',  caption = "Accuracy for forwards AIC", digits=2, position = "float_left")
+knitr::kable(cm1$byClass[c("Sensitivity","Specificity")], escape = FALSE, 'pipe',  caption = "Sensitivity and Specificity for forwards AIC", digits=2, position = "float_left")
 ```
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 # backwards AIC
-cm2$table
-cm2$overall["Accuracy"]
-cm2$byClass[c("Sensitivity","Specificity")]
+#cm2$table
+#cm2$overall["Accuracy"]
+#cm2$byClass[c("Sensitivity","Specificity")]
+knitr::kable(cm2$table, escape = FALSE, 'pipe',  caption = "Prediction table for backwards AIC", digits=2, position = "float_left")
+knitr::kable(cm2$overall["Accuracy"], escape = FALSE, 'pipe',  caption = "Accuracy for backwards AIC", digits=2, position = "float_left")
+knitr::kable(cm2$byClass[c("Sensitivity","Specificity")], escape = FALSE, 'pipe',  caption = "Sensitivity and Specificity for backwards AIC", digits=2, position = "float_left")
 ```
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 # stepwise AIC
-cm3$table
-cm3$overall["Accuracy"]
-cm3$byClass[c("Sensitivity","Specificity")]
+knitr::kable(cm3$table, escape = FALSE, 'pipe',  caption = "Prediction table for stepwise AIC", digits=2, position = "float_left")
+knitr::kable(cm3$overall["Accuracy"], escape = FALSE, 'pipe',  caption = "Accuracy for stepwise AIC", digits=2, position = "float_left")
+knitr::kable(cm3$byClass[c("Sensitivity","Specificity")], escape = FALSE, 'pipe',  caption = "Sensitivity and Specificity for stepwise AIC", digits=2, position = "float_left")
+#cm3$table
+#cm3$overall["Accuracy"]
+#cm3$byClass[c("Sensitivity","Specificity")]
 ```
 
 2.5 VIF
 
-```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
-vif(final_model)
+```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+vif_model <- vif(final_model)
+knitr::kable(vif_model, escape = FALSE, 'pipe',  caption = "VIF for final model", digits=2, position = "float_left")
 ```
