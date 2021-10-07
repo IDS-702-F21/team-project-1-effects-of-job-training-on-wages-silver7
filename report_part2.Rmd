@@ -4,7 +4,7 @@ output:
   geometry: margin=0.8in
   html_document: default
 ---
-## Part Two
+# Part Two
 ```{r setup , echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
@@ -51,9 +51,11 @@ df$wage_fact <- factor(df$wage)
 
 As shown in the summary statistics, there are more participants earning wages than people not earning wages in 1978. The wage_fact (wage factored) shows that 143 of the participants have zero wages and 471 participants are receiving wages in 1978. There is also an unbalanced distribution in races, where there are only 72 Hispanics compared to the 299 Black participants and participants of other races. Moreover, there are more than double the number of participants who did not receive treatments (429) compared to those who did receive training (185). 
 
+## Exploratory Data Analysis
+
 Conditional probabilities of wage given the predictors were explored. The table below shows the conditional probability of wage given the treat variable; conditional on treatment status, the probability that a participant would receive a non-zero wage is very similar. This result is also similar for married and nodegree where the outcome probability between zero and non zero groups between the binary predictors are roughly the same. For the different demographic groups, the likelihood for zero wage given that the participant is Hispanic is lower than both Black and participants of other races. However, the likelihood for non-zero wages given that participant is Hispanic is higher than for Black participants and other participants. (Appendix 1.2)
 
-```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%' }
+```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE,fig.width=3.2, fig.height=2.2, fig.show='hold', out.width='30%' }
 wage_treat <- apply(table(df[,c('wage_fact', 'treat')]) / sum(table(df[,c('wage_fact', 'treat')])), 2, function(x) x/sum(x))
 rownames(wage_treat) <- c("wage0", "wage1")
 colnames(wage_treat) <- c("treat0", "treat1")
@@ -70,12 +72,12 @@ interact_df = data.frame(
 ```
 
 
-Interactions between the predictor variables are also assessed, where the conditional probability table of non-zero wages between treat and race is shown in Appendix 1.6. The conditional probability of Hispanics getting a non-zero wage given training is 100%, and the likelihood of Hispanics getting a non-zero wage given no training is 80.3%. This trend is similar for Black participants and participants of other races where the conditional probability  of getting a non-zero wage is greater if they underwent training. It is also worth noting again that the there is not enough data for Hispanic participants compared to other and Black participants. Interactions between degree and train vs non-zero wage outcome can be shown in Appendix 1.4. 
+Interactions between the predictor variables are also assessed, where the conditional probability table of non-zero wages between treat and race is shown in Appendix 1.6. The conditional probability of Hispanics getting a non-zero wage given training is 100%, and the likelihood of Hispanics getting a non-zero wage given no training is 80.3%. This trend is similar for Black participants and participants of other races where the conditional probability  of getting a non-zero wage is greater if they underwent training. It is worth noting again that the there is not enough data for Hispanic participants compared to other and Black participants. Interactions between degree and train vs non-zero wage outcome can be shown in Appendix 1.4. 
 
 
 The following binned plots are shown to evaluate the interactions between age v train and educ v train on the non-zero wage outcome. The non-zero wage outcome v age v train show two different trends, where the training v age interactions shows a decrease in outcome around 22 - 25 year in age before increasing again at 30 years old. This is different compared to age v no training plot that shows a decrease in outcome at 30 years old before increasing at 36 years old, and then decreasing at around 42 years old. For educ v train and age v no-train on the non-zero wage outcome (Appendix 1.5), it is difficult to pinpoint a trend due to the lack of data points in the train v educ v wage outcome plot. Hence, the interactions of predictors on the response variable will be further analysed in this report. 
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='40%'}
+```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='50%'}
 
 #wage v age v train
 binnedplot(y=df$wage[df$treat==0], 
@@ -98,8 +100,7 @@ binnedplot(y=df$wage[df$treat==1],
 
 ```
 
-### Model
-### Model Building
+## Model Building
 Given that the response variable is a binary variable, the relationship between non-zero outcome and its predictors is analysed using a logistic regression, as shown below:
 
 $$wage_i | x_i \sim Bernoulli(\pi_i) log(\frac{\pi_i}{1 - \pi_i}) = x_i\beta$$
@@ -161,7 +162,7 @@ b_resids <- residuals(b_aic, "resp")
 step_resids <- residuals(step_aic, "resp")
 ```
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%'}
+```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='33%'}
 invisible(roc(df$wage_fact, fitted(f_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Forward AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 invisible(roc(df$wage_fact, fitted(b_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Backwards AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 invisible(roc(df$wage_fact, fitted(step_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Stepwise AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
@@ -226,7 +227,7 @@ invisible(confint(final_model, level=0.95))
 
 ```
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='40%'}
+```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='50%'}
 invisible(roc(df$wage_fact, fitted(final_model), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Final Model", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 
 binnedplot(fitted(final_model), step_resids, xlab="Pred. probabilities",
