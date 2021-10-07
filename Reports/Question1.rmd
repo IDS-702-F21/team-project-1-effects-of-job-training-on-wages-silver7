@@ -62,7 +62,7 @@ dta$race <- factor(as.numeric(dta$race)-1)
 # dta$race[(dta$race == 2)] <- 3
 
 dta$growth= dta$re78-dta$re74
-
+dta=subset(dta, select= -c(re75))
 stargazer(dta,header=FALSE,title="Summary Statistics", type='latex')
 dta$treat_as_names= dta$treat
 levels(dta$treat_as_names)<- c("Control","Treatment")
@@ -78,7 +78,7 @@ levels(dta$treat_as_names)<- c("Control","Treatment")
 
 To quantify the effect of a treatment in a randomized experiment, ideally, the treatment and control groups should be balanced. In our data, we see that this is not the case. On running a t-test on baseline income levels (re74) across treat, we see that a significant difference (p<0.001) exists across means: for the control group, baseline income is 5619.24 dollars on average, and for the treatment group, it is 2095.57 dollars on average. This provides justification for using growth in income (re78-re74) instead of final income as our outcome variable. Fig 1 shows the underlying distribution of our response variable, growth. It is fairly normal, so we don't feel the need to perform any transformations on it. A significant difference (p<0.001) also exists in mean age across the two groups (Fig 2). Average age for the control group is 28.03 years, while it is 25.82 years for the treatment group. As age can impact income growth, we take this as a limitation in our analysis. Large differences also exist in the proportion of married people across treatment groups: in the treatment group, only 18.91% of the participants were married, compared to the 51.28% of people in the control group. For education, 70.91% of the treatment group were degree holders, compared to 59.67% of the control group. 
 
-```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+```{r, results = "asis",fig.width=3.2, fig.height=3,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 library(ggplot2)
 ggplot(data=dta, aes(x=growth)) + geom_histogram(aes(y=..density..), color="black", linetype="dashed", bins=20, fill="lightblue") + geom_density(alpha=.25, fill="lightblue") + scale_fill_brewer(palette="Blues") + labs(title="Figure 1: Distribution of Earnings Growth", y="Frequency", x="Growth in Earnings") + theme_classic() + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
 
@@ -108,7 +108,7 @@ age and married: married people in the treatment group show lower median income 
 
 
 
-```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+```{r, results = "asis",fig.width=3.2, fig.height=3,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 
 ggplot(dta,aes(x=treat_as_names, y=(growth), fill=treat_as_names)) +
   geom_boxplot() + 
@@ -134,7 +134,6 @@ ggplot(dta) + aes(x=age, y=growth, color=factor(treat)) + geom_point(alpha=0.3) 
 #prop.table(table(dta$treat_as_names,dta$nodegree),margin=1)
 
 ```
-\newpage
 
 ## Model Building: Baseline (Main effects)
 
@@ -244,7 +243,7 @@ ci
 #### Question 3:
 
 ```{r, echo=FALSE}
-interactionmodel <- lm(formula = growth ~ treat + re75 + age_c + treat:age_c + treat:race, data = dta)
+interactionmodel <- lm(formula = growth ~ treat + age_c + treat:age_c + treat:race, data = dta)
 anova_table <- anova(selectedmodel, interactionmodel)
 #anova_table
 # kindly remove comment from xtable command and delete anova_table output before knitting markdown
