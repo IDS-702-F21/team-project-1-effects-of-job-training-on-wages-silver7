@@ -100,11 +100,8 @@ binnedplot(y=df$wage[df$treat==1],
 ### Model Building
 Given that the response variable is a binary variable, the relationship between non-zero outcome and its predictors is analysed using a logistic regression, as shown below:
 
-$Pr[y_{i} = 1|x_{i}] = \pi_{i}$ and  $Pr[y_{i} = 0|x_{i}] = 1- \pi_{i}$ where $y_{i}|x_{i}  \sim Bernoulli(\pi_{i})$
-
-and $log(\frac{\pi_{i}}{1-\pi_{i}}) = \beta_{0} + \beta_{1}x_{i1} + \beta_{2}x_{i2} + .... + \beta_{p}x_{ip}$  
-
-Here, $i$ is the observation index, $y$ is the outcome variable, $x$ is the predictor variables, and $p$ is the number of predictor variables.  
+$$wage_i | x_i \sim Bernoulli(\pi_i) log(\frac{\pi_i}{1 - \pi_i}) = x_i\beta$$
+where $wage_i$ is the binary response variable indicating whether workers received a non-zero wage or not and $x_i$ includes all predictor variables.
 
 ### Model 1
 
@@ -152,9 +149,6 @@ invisible(anova(glm1, full_glm, test = "Chisq"))
 ```
 
 ## Model Selection
-Forward AIC, backwards AIC, and step-wise AIC model selection were performed on Model 2. Both forward AIC and step-wise AIC returned the following $x_{i}$ predictors: treat, age, re74, race, treat$*$age, re74$*$race, and treat$*$race, while backwards AIC returns the following $x_{i}$ predictors: treat, age, educ, race, married, nodegree, re74, treat$*$race, treat$*$age, race$*$re74, race$*$married, race$*$nodegree, educ$*$race, age$*$nodegree.
-
-The ROC plots are shown below for these 3 selections, as well as the residual binned plots are shown in Appendix 2.3. The residual binned plots show relatively supportive graphs as most of the points lie within the 95% confidence band. On the other hand,  the AUC for backwards AIC gives 71.3%, while forward AIC and backwards AIC give 66.7%. Ultimately, backwards AIC was chosen for our final model due to the higher AUC and the higher number of interactions included in the backwards AIC. 
 
 ```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 f_aic <- step(null_glm, scope = formula(full_glm), direction = "forward", trace = 0) 
@@ -170,6 +164,10 @@ invisible(roc(df$wage_fact, fitted(f_aic), plot = T, print.thres = mean(as.numer
 invisible(roc(df$wage_fact, fitted(b_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Backwards AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 invisible(roc(df$wage_fact, fitted(step_aic), plot = T, print.thres = mean(as.numeric(as.character(df$wage_fact))), legacy.axes = T, print.auc = T, col = "red3", main = "Stepwise AIC", cex.main = 0.9, cex.lab = 0.7, cex.axis = 0.7))
 ```
+
+Forward AIC, backwards AIC, and step-wise AIC model selection were performed on Model 2. Both forward AIC and step-wise AIC returned the following $x_{i}$ predictors: treat, age, re74, race, treat$*$age, re74$*$race, and treat$*$race, while backwards AIC returns the following $x_{i}$ predictors: treat, age, educ, race, married, nodegree, re74, treat$*$race, treat$*$age, race$*$re74, race$*$married, race$*$nodegree, educ$*$race, age$*$nodegree.
+
+The ROC plots are shown below for these 3 selections, as well as the residual binned plots are shown in Appendix 2.3. The residual binned plots show relatively supportive graphs as most of the points lie within the 95% confidence band. On the other hand,  the AUC for backwards AIC gives 71.3%, while forward AIC and backwards AIC give 66.7%. Ultimately, backwards AIC was chosen for our final model due to the higher AUC and the higher number of interactions included in the backwards AIC. 
 
 ## Final Model
 
