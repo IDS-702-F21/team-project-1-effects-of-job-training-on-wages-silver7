@@ -233,10 +233,10 @@ There is statistically significant evidence that training has positive relations
 
 #### Question 2:
 
-After computing"two-sided" confidence intervals for the effect of training, accounting for all other predictors, we are 95% confident that the difference in real annual earnings from 1974 to 1978 increases by an amount between \$953.20 and \$3,556.41 for participants who were trained compared to participants who were not trained.
+After computing "two-sided" confidence intervals for the effect of training, accounting for all other predictors, we are 95% confident that the difference in real annual earnings from 1974 to 1978 increases by an amount between \$1,143.31 and \$4,002.63 for participants who were trained compared to participants who were not trained.
 ```{r, results='asis', echo=FALSE}
 ci <- confint(selectedmodel)
-#ci
+ci
 # kindly remove comment from xtable command and delete confidence interval output before knitting markdown
 #xtable(ci)
 ```
