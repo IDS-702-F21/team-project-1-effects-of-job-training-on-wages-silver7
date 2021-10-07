@@ -30,7 +30,7 @@ library(sjlabelled)
 ```
 ## Introduction 
 
-In this project, we analyse data derived from an experiment conducted by the National Supported Work (NSW) Demonstration in which researchers wanted to assess whether or not job training for disadvantaged workers had an effect on their wages. Specifically, we seek to understand if workers who receive job training tend to earn higher wages than workers who do not receive job training. We also investigate if this effect differs across demographic groups. Through the course of this analysis, we perform exploratory data analysis to identify the different socioeconomic characteristics that are associated with real annual earnings, and then model them using a linear regression. (Add Findings)
+In this project, we analyse data derived from an experiment conducted by the National Supported Work (NSW) Demonstration in which researchers wanted to assess whether or not job training for disadvantaged workers had an effect on their wages. Specifically, we seek to understand if workers who receive job training tend to earn higher wages than workers who do not receive job training. We also investigate if this effect differs across demographic groups. Through the course of this analysis, we perform exploratory data analysis to identify the different socioeconomic characteristics that are associated with real annual earnings, and then model them using a linear regression. We find that treatment status is a significant predictor of income growth, and that this effect does not differ across demographic groups.
 
 ## Data  
 
@@ -115,7 +115,17 @@ ggplot(dta,aes(x=treat_as_names, y=(growth), fill=treat_as_names)) +
   labs(title="Figure 3: Growth across Treatment groups",x="Experimental group",y="Income Growth (re78-re74") +
   theme_classic() + theme(legend.position="Top") + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
 
-knitr::include_graphics("/Users/sarwaridas/Desktop/IDS\ 720/EDA_plot.png")
+ggplot(dta) + aes(x=age, y=growth, color=factor(treat)) + geom_point(alpha=0.3) + 
+   scale_color_manual(labels = c("Control", "Treatment"), values = c("#F8766D", "#00BFC4"),
+                      name = "") +
+  geom_smooth(method = "lm") + 
+   ggtitle("Figure 4: Change of growth with age across treatment groups") + 
+  xlab("Age (years)") + ylab("Growth (USD)") +  theme(legend.key.size = unit(0.5, 'cm'))+
+  theme_classic() + theme(axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
+
+
+
+# knitr::kable(wage_treat, escape = FALSE, 'pipe',  caption = "Wage given treat", digits=2, position = "float_left")
 
 #t.test(growth~treat,data=dta,alternative="greater")
 
@@ -268,9 +278,31 @@ Apart from the training status of participants, the age, real annual earnings in
 2. Summary for baseline model
 
 ```{r, results = "asis",header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
-stargazer(baselinemodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
+# stargazer(baselinemodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
+
+fdf <- round(summary(baselinemodel)$coefficients, digits = 3)
+fCI <- confint(baselinemodel)
+
+format_CI = NULL
+for (i in 1:nrow(fCI)) {
+  format_CI[i] = paste("(", round(fCI[i,1], digits = 3), ", ", round(fCI[i,2], digits = 3), ")", sep = "")
+}
+
+output_table <- cbind(fdf, format_CI)
+r2 <- round(summary(baselinemodel)$r.squared, digits = 3)
+adjr2 <- round(summary(baselinemodel)$adj.r.squared, digits = 3)
+
+kable(output_table,
+      col.names = c("Estimate", "Std. Error", "t-value", "p-value", "95% CI"), 
+      caption = "Linear Regression Model Output") %>% 
+  kable_styling(position = "center", latex_options = "hold_position", font_size = 10) %>% 
+  footnote(general = paste("R-Squared: ", r2, ". Adj. R-Squared: ", adjr2, ". p-value: 1.227e-09", sep = ""))
+
 
 ```
+
+
+
 
 
 
