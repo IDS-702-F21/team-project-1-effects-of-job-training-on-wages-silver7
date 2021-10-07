@@ -201,7 +201,8 @@ outputdf <- cbind(final_df, f_CI)
 kable(outputdf,
       col.names = c("Odds Ratio", "Std. Error", "z-value", "p-value", "95% CI"),
       caption = "Logistic Regression Model Output") %>%
-  kable_styling(position = "center", latex_options = "HOLD_position", font_size = 10)
+  kable_styling(position = "center", latex_options = "HOLD_position", font_size = 10) %>% 
+  footnote(general = "Null deviance: 666.5. Residual deviance: 600.6")
 ```
 
 ```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
