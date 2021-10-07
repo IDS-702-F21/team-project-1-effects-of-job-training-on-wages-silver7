@@ -199,7 +199,7 @@ for (i in 1:nrow(final_CI)) {
 
 outputdf <- cbind(final_df, f_CI)
 kable(outputdf,
-      col.names = c("Odds Ratio", "Std. Error", "t-value", "p-value", "95% CI"),
+      col.names = c("Odds Ratio", "Std. Error", "z-value", "p-value", "95% CI"),
       caption = "Logistic Regression Model Output") %>%
   kable_styling(position = "center", latex_options = "HOLD_position", font_size = 10)
 ```
