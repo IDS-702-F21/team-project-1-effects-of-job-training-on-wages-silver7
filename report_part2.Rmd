@@ -401,7 +401,6 @@ binnedplot(fitted(step_aic), step_resids, xlab="Pred. probabilities",
 
 
 2.4 
-Confusion Matrix for 1) Forward AIC 2) Backward AIC 3) Stepwise AIC
 
 ```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='30%'}
 # forward AIC
