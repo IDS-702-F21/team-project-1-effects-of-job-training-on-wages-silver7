@@ -17,6 +17,7 @@ library(data.table)
 library(magrittr)
 library(kableExtra)
 library(xtable)
+library(stargazer)
 options(xtable.comment = FALSE)
 ```
 ### Summary
@@ -183,10 +184,25 @@ final_model <- glm(wage_fact ~ treat + age + educ + race + married + nodegree +
  #   re74 + treat:re74 + treat:age + race:married + race:nodegree + educ:race + age:nodegree, family = binomial(), data = df)
 no_race <- glm(wage_fact ~ treat + age + educ + married + nodegree + 
     re74 + treat:re74 + treat:age + age:nodegree, family = binomial(), data = df)
-xtable(summary(final_model), digits=2)
+# xtable(summary(final_model), digits=2)
 invisible(anova(no_race, final_model, test = "Chisq"))
 ```
 
+```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
+final_df <- round(summary(final_model)$coefficients, digits = 3)
+final_CI <- confint(final_model)
+
+f_CI <- NULL
+for (i in 1:nrow(final_CI)) {
+    f_CI[i] = paste("(", round(final_CI[i,1], digits = 2), ", ", round(final_CI[i,2], digits = 2), ")", sep = "")
+}
+
+outputdf <- cbind(final_df, f_CI)
+kable(outputdf,
+      col.names = c("Odds Ratio", "Std. Error", "t-value", "p-value", "95% CI"),
+      caption = "Logistic Regression Model Output") %>%
+  kable_styling(position = "center", latex_options = "HOLD_position", font_size = 10)
+```
 
 ```{r results='asis', echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
 invisible(vif(final_model))
@@ -241,7 +257,7 @@ invisible(summary(df[,-1]))
 ```
 
 ```{r pressure, echo=FALSE, out.width = '100%', align='center'}
-knitr::include_graphics("/Users/michellevan/Desktop/summary1.png")
+# knitr::include_graphics("/Users/michellevan/Desktop/summary1.png")
 ```
 
 
