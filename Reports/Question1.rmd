@@ -105,6 +105,8 @@ Before the modelling process, we perform an exploratory analysis to understand t
 We are further interested in knowing whether the treatment effect varies across any demographic groups. On exploring interaction effects across our variables, we notice that trend of earnings growth against age changes  across treatment groups: in the control group, earnings growth reduces as people age, while in the treatment group older people see more income growth. Trend changes are also noticed in the interaction between 
 age and married: married people in the treatment group show lower median income growth than unmarried people, but the trend reverses in the control group. We also see some potential interactions for treat with race, and treat with degreeholders.
 
+
+
 ```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 
 ggplot(dta,aes(x=treat_as_names, y=(growth), fill=treat_as_names)) +
@@ -112,6 +114,8 @@ ggplot(dta,aes(x=treat_as_names, y=(growth), fill=treat_as_names)) +
   scale_fill_brewer(palette="Blues") +
   labs(title="Figure 3: Growth across Treatment groups",x="Experimental group",y="Income Growth (re78-re74") +
   theme_classic() + theme(legend.position="Top") + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
+
+knitr::include_graphics("/Users/sarwaridas/Desktop/IDS\ 720/EDA_plot.png")
 
 #t.test(growth~treat,data=dta,alternative="greater")
 
@@ -176,7 +180,6 @@ plot(selectedmodel,which=5, col=c("darkblue"),sub.caption = "")
 ## Model Interpretation
 Table 2 gives a summary for the model. According to our model, on controlling for whether the participant is married, when age is at the baseline (27 years, since it is centered), on average a person in the treatment group would see an increase in income that is \$2572.97 (p<.001) greater than someone in the control group. Age is also a highly significant predictor of income growth: for someone in the control group, controlling for all else, as age increases from the baseline by a year, income growth decreases by \$201.94 (p<0.001) on average. For someone in the control group, when age is at baseline, a married person would see income growth that is \$1833.72 (p<0.01) lower than someone in the treatment group on average. Finally, on average, unmarried 27 year olds in the control group would see an income growth of \$2122.28. Further, as age increases by a year, a person in the treatment group would see an additional increase in income growth by \$294.99 (p<0.001) on average. Further, for an increase in age by a year, a married person would see an additional increase in income growth by \$129.44 (p<0.05) on average. All the predictor variables in the final model have a significant effect on real annual earnings. This model explains 7% of the variability in income growth from 1974 to 1978.
 
-
 ```{r, results = "asis",header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 # library(stargazer)
 # stargazer(selectedmodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
@@ -198,9 +201,21 @@ kable(output_table,
       col.names = c("Estimate", "Std. Error", "t-value", "p-value", "95% CI"), 
       caption = "Linear Regression Model Output") %>% 
   kable_styling(position = "center", latex_options = "hold_position", font_size = 10) %>% 
-  footnote(general = paste("R-Squared: ", r2, ". Adj. R-Squared: ", adjr2, sep = ""))
+  footnote(general = paste("R-Squared: ", r2, ". Adj. R-Squared: ", adjr2, ". p-value: 1.227e-09", sep = ""))
 
 ```
+
+\newpage
+
+## Limitations
+
+The goal of the analysis is to determine the associative effect of training on earnings of workers. However, the control group includes unemployed participants in the survey. Including these participants introduces noise and obfuscates the analysis. Ideally, to achieve the goal of the assignment, data used should be exclusive to employed workers. We considered removing participants who were unemployed but stopped when we discovered that unemployed workers constituted 26% of the control group.
+
+During the EDA, we discovered a substantial disparity in key sample statistics between the control group and the treatment group. The treatment group has a mean age of 26 years old and the control has a mean age of 28 years old. Also, the treatment group has mean annual earnings of \$2,096 in 1974 while the control group has mean annual earnings of $5,619 in 1974. Again, ideally, to determine the effect of training on earning of workers, it is imperative that the two groups be as closely balanced as possible, practically.
+
+With an adjusted coefficient of determination of 7%, our final model can accurately explain 7% of the variability in the growth of annual earnings of participants with the predictor variables. We can infer from this that other predictor variables outside the scope of what is available in the dataset, can explain the growth of annual earnings better.
+
+## Conclusion
 
 #### Question 1:
 
