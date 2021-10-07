@@ -46,7 +46,7 @@ Refer to appendix for the full data dictionary. A summary of the continuous vari
 We have 614 records in our final data, with 429 participants in the control group and 185 in the treatment group. We checked for missing data and found none. Large number of zero values are seen in each of the income columns, but given that the experiment was run on disadvantaged workers lacking job skills, we conclude that these are meaningful to the inferential questions asked and are not being treated like missing values. Outliers are also seen in the data: in re78 for example, the maximum value is more than 5 times the value of the third quartile. We make note of this, and choose to deal with it during our regression modelling. 
 ```{r, results = "asis",echo=FALSE,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 library(stargazer)
-dta <- read.csv("/Users/sarwaridas/Desktop/IDS\ 702/TeamProjects/Project1/lalonde.csv",header = TRUE,sep = ",",stringsAsFactors = FALSE)
+dta <- read.csv("../../team-project-1-effects-of-job-training-on-wages-silver7/Data/lalonde.csv")
 
 f_cols= c('treat','black','hispan','married','nodegree') #changing to factor dtype
 dta[f_cols] = lapply(dta[f_cols], as.factor) #changing to factor dtype
@@ -178,8 +178,27 @@ Table 2 gives a summary for the model. According to our model, on controlling fo
 
 
 ```{r, results = "asis",header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
-library(stargazer)
-stargazer(selectedmodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
+# library(stargazer)
+# stargazer(selectedmodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
+
+library(kableExtra)
+fdf <- round(summary(selectedmodel)$coefficients, digits = 3)
+fCI <- confint(selectedmodel)
+
+format_CI = NULL
+for (i in 1:nrow(fCI)) {
+  format_CI[i] = paste("(", round(fCI[i,1], digits = 3), ", ", round(fCI[i,2], digits = 3), ")", sep = "")
+}
+
+output_table <- cbind(fdf, format_CI)
+r2 <- round(summary(selectedmodel)$r.squared, digits = 3)
+adjr2 <- round(summary(selectedmodel)$adj.r.squared, digits = 3)
+
+kable(output_table,
+      col.names = c("Estimate", "Std. Error", "t-value", "p-value", "95% CI"), 
+      caption = "Linear Regression Model Output") %>% 
+  kable_styling(position = "center", latex_options = "hold_position", font_size = 10) %>% 
+  footnote(general = paste("R-Squared: ", r2, ". Adj. R-Squared: ", adjr2, sep = ""))
 
 ```
 
