@@ -1,10 +1,12 @@
 ---
 title: '**Modeling and Representation of Data - Team Project 1**'
 author: "John Owusu Duah, Michelle Van, Peining Yang, Sarwari Das, Satvik Kishore"
+geometry: margin=0.8in
 output:
   pdf_document: default
   html_document:
     df_print: paged
+  word_document: default
 ---
 ```{r setup, echo=FALSE, include=FALSE}
 options(warn = -1)
@@ -26,20 +28,22 @@ library(sjlabelled)
 
 #knitr::opts_chunk$set(fig.width=10, fig.height=5)
 ```
-# Introduction 
+## Introduction 
 
-In this project, we analyse data derived from an experiment conducted by the National Supported Work (NSW) Demonstration, in which researchers wanted to assess whether or not job training for disadvantaged workers had an effect on their wages.
-Specifically, we seek to understand if workers who receive job training tend to earn higher wages than workers who do not receive job training. We also investigate if this effect differs across demographic groups. Through the course of this analysis, we perform exploratory data analysis to identify the different socioeconomic characteristics that are associated with real annual earnings, and then model them using a linear regression. (Add Findings)
+In this project, we analyse data derived from an experiment conducted by the National Supported Work (NSW) Demonstration in which researchers wanted to assess whether or not job training for disadvantaged workers had an effect on their wages. Specifically, we seek to understand if workers who receive job training tend to earn higher wages than workers who do not receive job training. We also investigate if this effect differs across demographic groups. Through the course of this analysis, we perform exploratory data analysis to identify the different socioeconomic characteristics that are associated with real annual earnings, and then model them using a linear regression. (Add Findings)
 
-## Data Pre-processing 
+## Data  
 
 We study a subset of the data originally organized in Lalonde, R. J. (1986), which is our main reference for this analysis.  Here, the treatment group includes male participants for which 1974 earnings can be obtained, and the control group includes unemployed males whose income in 1975 was below the poverty level.
 
-Refer to appendix for the full data dictionary. A summary of the continuous variables can be found in Table 1. The following transformations are applied to the  data:
-- Combined 'black' and 'Hispanic' into a 'race' variable, where 0 indicates 'other' races, 1 indicates black men and 2 indicates Hispanic men.       
-- Created a new variable 'growth', which is the difference between the real earnings in 1978 and 1974.       
-- Drop the variable re75; we see that participants were paid during the experiment, and hence the wages recorded in 1975 act as a confounding variable to our outcome (growth). To capture the unique effect of the treatment, we choose to drop re75.       
-- Center our age and education variables, for easier interpretation of the intercept.       
+Refer to appendix for the full data dictionary. A summary of the continuous variables can be found in Table 1. The following transformations are applied to the  data:  
+
+* Combined 'black' and 'Hispanic' into a 'race' variable, where 0 indicates 'other' races, 1 indicates black men and 2 indicates Hispanic men.
+* Created a new variable 'growth', which is the difference between the real earnings in 1978 and 1974.
+* Drop the variable re75; we see that participants were paid during the experiment, and hence the wages recorded in 1975 act as a confounding variable to our outcome (growth). To capture the unique effect of the treatment, we choose to drop re75.
+* Center our age and education variables, for easier interpretation of the intercept.
+
+We have 614 records in our final data, with 429 participants in the control group and 185 in the treatment group. We checked for missing data and found none. Large number of zero values are seen in each of the income columns, but given that the experiment was run on disadvantaged workers lacking job skills, we conclude that these are meaningful to the inferential questions asked and are not being treated like missing values. Outliers are also seen in the data: in re78 for example, the maximum value is more than 5 times the value of the third quartile. We make note of this, and choose to deal with it during our regression modelling. 
 ```{r, results = "asis",echo=FALSE,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 library(stargazer)
 dta <- read.csv("/Users/sarwaridas/Desktop/IDS\ 702/TeamProjects/Project1/lalonde.csv",header = TRUE,sep = ",",stringsAsFactors = FALSE)
@@ -67,22 +71,21 @@ levels(dta$treat_as_names)<- c("Control","Treatment")
 #$y_{i}(re78- re74) = \beta _{0} + \beta _{1}x_{i1}(age)+ \beta _{2}x_{i2}(married)+ \\\beta _{3j}x_{i3}(treat)+\beta _{4j}x_{i1}x_{i3}(treat:age)+\beta _{5j}x_{i1}x_{i2}(married:age)$
 
 ```
-We have 614 records in our final data, with 429 participants in the control group and 185 in the treatment group. We checked for missing data and found none. Large number of zero values are seen in each of the income columns (details in Appendix), but given that the experiment was run on disadvantaged workers lacking job skills, we conclude that these are meaningful to the inferential questions asked and are not being treated like missing values. Outliers are also seen in the data: in re78 for example, the maximum value is more than 5 times the value of the third quartile. We make note of this, and choose to deal with it during our regression modelling. 
+
 
 ## Exploratory Data Analysis
 
-To quantify the effect of a treatment in a randomized experiment, ideally, the treatment and control groups should be balanced. In our data, we see that this is not the case. On running a t-test on baseline income levels (re74) across treat, we see that a significant difference (p<0.001) exists across means: for the control group, baseline income is 5619.24 dollars on average, and for the treatment group, it is 2095.57 dollars on average. This provides justification for using growth in income (re78-re74) instead of final income as our outcome variable. Fig X shows the underlying distribution of our response variable, growth. It is fairly normal, so we don't feel the need to perform any transformations on it. A significant difference (p<0.001) also exists in mean age across the two groups (Fig X). Average age for the control group is 28.03 years, while it is 25.82 years for the treatment group. As age can impact income growth, we take this as a limitation in our analysis. Large differences also exist in the proportion of married people across treatment groups: in the treatment group, only 18.91% of the participants were married, compared to the 51.28% of people in the control group. For education, 70.91% of the treatment group were degree holders, compared to 59.67% of the control group. 
+To quantify the effect of a treatment in a randomized experiment, ideally, the treatment and control groups should be balanced. In our data, we see that this is not the case. On running a t-test on baseline income levels (re74) across treat, we see that a significant difference (p<0.001) exists across means: for the control group, baseline income is 5619.24 dollars on average, and for the treatment group, it is 2095.57 dollars on average. This provides justification for using growth in income (re78-re74) instead of final income as our outcome variable. Fig 1 shows the underlying distribution of our response variable, growth. It is fairly normal, so we don't feel the need to perform any transformations on it. A significant difference (p<0.001) also exists in mean age across the two groups (Fig 2). Average age for the control group is 28.03 years, while it is 25.82 years for the treatment group. As age can impact income growth, we take this as a limitation in our analysis. Large differences also exist in the proportion of married people across treatment groups: in the treatment group, only 18.91% of the participants were married, compared to the 51.28% of people in the control group. For education, 70.91% of the treatment group were degree holders, compared to 59.67% of the control group. 
 
-```{r, results = "asis",fig.width=3.2, fig.height=2.4,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 library(ggplot2)
-ggplot(data=dta, aes(x=growth)) + geom_histogram(aes(y=..density..), color="black", linetype="dashed", bins=20, fill=rainbow(20)) + geom_density(alpha=.25, fill="lightblue") + scale_fill_brewer(palette="Blues") + labs(title="Distribution of Earnings Growth", y="Frequency", x="Growth in Earnings") + theme_classic() + theme(legend.position="none")
-
+ggplot(data=dta, aes(x=growth)) + geom_histogram(aes(y=..density..), color="black", linetype="dashed", bins=20, fill="lightblue") + geom_density(alpha=.25, fill="lightblue") + scale_fill_brewer(palette="Blues") + labs(title="Figure 1: Distribution of Earnings Growth", y="Frequency", x="Growth in Earnings") + theme_classic() + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
 
 ggplot(dta,aes(x=treat_as_names, y=(age), fill=treat_as_names)) +
   geom_boxplot() + #coord_flip() +
   scale_fill_brewer(palette="Blues") +
-  labs(title="Age across Treatment groups",x="Experimental group",y="Age") +
-  theme_classic() + theme(legend.position="Top")
+  labs(title="Figure 2: Age across Treatment groups",x="Experimental group",y="Age") +
+  theme_classic() + theme(legend.position="Top") + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
 
 # ggplot(dta,aes(x=age, y=treat_as_names, fill=treat_as_names)) +
 #   geom_boxplot() + #coord_flip() +
@@ -96,23 +99,19 @@ ggplot(dta,aes(x=treat_as_names, y=(age), fill=treat_as_names)) +
 #prop.table(table(dta$treat_as_names,dta$nodegree),margin=1)
 
 ```
-Before the modelling process, we perform an exploratory analysis to understand the plausible relationships between the  predictors (All plots in Appendix).Comparing income growth across predictors, boxplots show us that median growth was higher for participants in the treatment group, compared to the control group. (Fig X) However, on performing a t-test, we see that difference in means were not significant. Median growth was also higher for unmarried people, compared to married people. No significant relationships were seen for degree holders and years of education. Across races, it was seen that median growth was highest for hispanic people, followed by black people and other races. Across age, a decline was noticed in earnings growth as a participant ages.  
+
+Before the modelling process, we perform an exploratory analysis to understand the plausible relationships between the predictors.Comparing income growth across predictors, boxplots show us that median growth was higher for participants in the treatment group, compared to the control group. (Fig 3) However, on performing a t-test, we see that difference in means were not significant. Median growth was also higher for unmarried people, compared to married people. No significant relationships were seen for degree holders and years of education. Across races, it was seen that median growth was highest for hispanic people, followed by black people and other races. Across age, a decline was noticed in earnings growth as a participant ages.  
 
 We are further interested in knowing whether the treatment effect varies across any demographic groups. On exploring interaction effects across our variables, we notice that trend of earnings growth against age changes  across treatment groups: in the control group, earnings growth reduces as people age, while in the treatment group older people see more income growth. Trend changes are also noticed in the interaction between 
 age and married: married people in the treatment group show lower median income growth than unmarried people, but the trend reverses in the control group. We also see some potential interactions for treat with race, and treat with degreeholders.
 
-*Need to fit 2 EDA plots here: plot from our ppt for age vs treat + another*
-\newpage
+```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 
-```{r, results = "asis",fig.width=3.5, fig.height=3,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
-# ggplot(data=dta, aes(x=growth)) + geom_histogram(aes(y=..density..), color="black", linetype="dashed", bins=20, fill=rainbow(20)) + geom_density(alpha=.25, fill="lightblue") + scale_fill_brewer(palette="Blues") + labs(title="Distribution of Earnings Growth", y="Frequency", x="Growth in Earnings") + theme_classic() + theme(legend.position="none")
-# 
-# 
-# ggplot(dta,aes(x=treat_as_names, y=(age), fill=treat_as_names)) +
-#   geom_boxplot() + #coord_flip() +
-#   scale_fill_brewer(palette="Blues") +
-#   labs(title="Age across Treatment groups",x="Experimental group",y="Age") + 
-#   theme_classic() + theme(legend.position="Top")
+ggplot(dta,aes(x=treat_as_names, y=(growth), fill=treat_as_names)) +
+  geom_boxplot() + 
+  scale_fill_brewer(palette="Blues") +
+  labs(title="Figure 3: Growth across Treatment groups",x="Experimental group",y="Income Growth (re78-re74") +
+  theme_classic() + theme(legend.position="Top") + theme(legend.position="none",axis.text=element_text(size=8),axis.title=element_text(size=6,face="bold"),plot.title = element_text(size = 8, face = "bold"))
 
 #t.test(growth~treat,data=dta,alternative="greater")
 
@@ -120,6 +119,7 @@ age and married: married people in the treatment group show lower median income 
 #prop.table(table(dta$treat_as_names,dta$nodegree),margin=1)
 
 ```
+\newpage
 
 ## Model Building: Baseline (Main effects)
 
@@ -128,7 +128,7 @@ To begin, we construct a simple regression model with income growth as the respo
 $$
 Growth \sim \beta_0 +  \beta_1 \ treat+  \beta_2 \ age+ \beta_3 \ married+ \beta_4 \ educ+ \beta_5 \ race+ \beta_6 \ nodegree+\epsilon 
 $$
-A summary for the baseline model can be found in the Appendix. but our main takeaways were: (1) whether or not the participant was in the treatment group was a highly significant predictor (p<0.001) of their income growth (2) age and married are also significant predictors of income growth (3) the model explains about 5% of the variability in income growth.
+A summary for the baseline model can be found in the Appendix. Our main takeaways were: (1) whether or not the participant was in the treatment group was a highly significant predictor (p<0.001) of their income growth (2) age and married are also significant predictors of income growth (3) the model explains about 5% of the variability in income growth.
 
 ```{r, echo=FALSE}
 dta$age_c <- c(scale(dta$age, scale=F))
@@ -138,7 +138,7 @@ baselinemodel <- lm(formula=growth ~ treat + age_c + married + educ_c + race + n
 #summary(baselinemodel)
 ```
 
-On plotting the continuous variables ‘age’ and ‘educ’ against growth, we see somewhat linear trends. Transformations like log- transformations and polynomial forms do not improve the residual plots, so we decide to go with the variables as they are. On checking the residual plots, we see that points in the Residuals vs Fitted plot are random, but look clustered in the center. They form a somewhat equal band about the axis, so we conclude that both independence and constant variance are not violated, but can be improved. In the Q-Q plot, points are on the 45 degree line, but we see deviations on both ends. We carried out several iterations of transformations of the variables to improve the condition of normality in the error term but no noticeable improvement was found. Since the points do not sharply deviate from the 45 degree line, we conclude that our model does not violate the normality assumption. On checking the Scale-Location and standardized residuals vs leverage plot, we see that we have outliers, but they are not influential. Hence we do not decide to remove them. To improve our model, we move on to the model selection process.
+On plotting the continuous variables ‘age’ and ‘educ’ against growth, we see somewhat linear trends. Transformations like log- transformations and polynomial forms do not improve the residual plots, so we decide to go with the variables as they are. On checking the residual plots below, we see that points in the Residuals vs Fitted plot are random, but look clustered in the center. They form a somewhat equal band about the axis, so we conclude that both independence and constant variance are not violated, but can be improved. In the Q-Q plot, points are on the 45 degree line, but we see deviations on both ends. We carried out several iterations of transformations of the variables to improve the condition of normality in the error term but no noticeable improvement was found. Since the points do not sharply deviate from the 45 degree line, we conclude that our model does not violate the normality assumption. On checking the Scale-Location and standardized residuals vs leverage plot, we see that we have outliers, but they are not influential. Hence we do not decide to remove them. To improve our model, we move on to the model selection process.
 ```{r, results = "asis",fig.width=4, fig.height=3.8, fig.show="hold", out.width="32%", header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 
 plot(baselinemodel,which=1, col=c("darkblue"),sub.caption = "")
@@ -147,9 +147,10 @@ plot(baselinemodel,which=2, col=c("darkblue"),sub.caption = "")
 plot(baselinemodel,which=5, col=c("darkblue"),sub.caption = "")
 ```
 
-## Model Selection: Final (Forward Model Selection with AIC)
+## Model Selection: Final (Forward Selection with AIC)
 
-For our model selection we construct a null model having just treat as the response variable, and a full model having all main effects as well as all possible interaction terms for treat, age and race and education. Using AIC (**GIVE REASON WHY**), forward selection gives us the final model given below.
+For our model selection we construct a null model having just treat as the response variable, and a full model having all main effects as well as all possible interaction terms for treat, age and race and education. We did not want to be penalized for using a larger number of variables (since we observed interactions in EDA), so we use AIC with forward selection to get the final model given below. A nested F-test justifies the addition of these interactions (p<0.05), so we proceed with this model.
+
 ```{r, echo=FALSE}
 nullmodel <- lm(formula = growth ~ treat, data=dta)
 fullmodel <- lm(formula = growth ~ treat + educ_c + race + nodegree + married  + educ_c*(treat + age_c + race + nodegree + married) + treat*(race + nodegree + married + age_c) + race*(nodegree + married) + age_c:married + nodegree:married, data=dta)
@@ -162,7 +163,7 @@ $$
 Growth \sim \beta_0 +  \beta_1 \ treat+  \beta_2 \ age+ \beta_3 \ married+ \beta_4 \ married:age+ \beta_5 \ treat:age+\epsilon ;     \epsilon \sim N(0,\sigma^2)
 $$
 
-Table X gives a summary for the model. We assess linearity by plotting ‘age’ and ‘educ’ against growth and see a linear trend. Thus the linearity assumption is met. On checking the residual plots, we see that points in the Residuals vs Fitted plot are random, but look clustered in two groups. Since the independence assumption requires independence in the Y-axis and does not regard patterns on the X axis, we conclude that the independence assumption is not violated. However, the presence of the clusters indicate the presence of an omitted variable, which we count as a limitation in our analysis. The points seem to form an equal band around the axis, so we conclude that the constant variance assumption is met. Checking the Q-Q plot, we see that more points are on the 45 degree line than the baseline model, although deviations still exist. We conclude that normality of residuals have improved, and the assumption has been met. On checking the Scale-Location and standardized residuals vs leverage plots, we see outliers (especially point 132). However, these are not influential so we choose to not remove them. Finally, on checking for multicollinearity, we see that the highest Variance Inflation Factor (VIF) was 1.23, which is substantially less than the threshold for concern. 
+We assess linearity by plotting ‘age’ and ‘educ’ against growth and see a somewhat linear trend. Thus the linearity assumption is met. On checking the residual plots, we see that points in the Residuals vs Fitted plot are random, but look clustered in two groups. Since the independence assumption requires independence in the Y-axis and does not regard patterns on the X axis, we conclude that the independence assumption is not violated. However, the presence of the clusters indicate the presence of an omitted variable, which we count as a limitation in our analysis. The points seem to form an equal band around the axis, so we conclude that the constant variance assumption is met. Checking the Q-Q plot, we see that more points are on the 45 degree line than the baseline model, although deviations still exist. We conclude that normality of residuals have improved, and the assumption has been met. On checking the Scale-Location and standardized residuals vs leverage plots, we see outliers (especially point 132). However, these are not influential so we choose to not remove them. Finally, on checking for multicollinearity, we see that the highest Variance Inflation Factor (VIF) was 1.23, which is substantially less than the threshold for concern. 
 
 ```{r, results = "asis",fig.width=4, fig.height=3.8, fig.show="hold", out.width="32%", header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 
@@ -173,11 +174,67 @@ plot(selectedmodel,which=5, col=c("darkblue"),sub.caption = "")
 ```
 
 ## Model Interpretation
+Table 2 gives a summary for the model. According to our model, on controlling for whether the participant is married, when age is at the baseline (27 years, since it is centered), on average a person in the treatment group would see an increase in income that is \$2572.97 (p<.001) greater than someone in the control group. Age is also a highly significant predictor of income growth: for someone in the control group, controlling for all else, as age increases from the baseline by a year, income growth decreases by \$201.94 (p<0.001) on average. For someone in the control group, when age is at baseline, a married person would see income growth that is \$1833.72 (p<0.01) lower than someone in the treatment group on average. Finally, on average, unmarried 27 year olds in the control group would see an income growth of \$2122.28. Further, as age increases by a year, a person in the treatment group would see an additional increase in income growth by \$294.99 (p<0.001) on average. Further, for an increase in age by a year, a married person would see an additional increase in income growth by \$129.44 (p<0.05) on average. All the predictor variables in the final model have a significant effect on real annual earnings. This model explains 7% of the variability in income growth from 1974 to 1978.
 
 
 ```{r, results = "asis",header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 library(stargazer)
 stargazer(selectedmodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
+
+```
+
+#### Question 1:
+
+There is statistically significant evidence that training has positive relationship with the growth of income from 1974 to 1978, accounting for other effects and interaction between job training and age. The difference in real annual earnings from 1974 to 1978 increases by $2,254.80 for participants who were trained compared to participants who were not trained, keeping all other predictor variables constant.
+
+#### Question 2:
+
+After computing"two-sided" confidence intervals for the effect of training, accounting for all other predictors, we are 95% confident that the difference in real annual earnings from 1974 to 1978 increases by an amount between \$953.20 and \$3,556.41 for participants who were trained compared to participants who were not trained.
+```{r, results='asis', echo=FALSE}
+ci <- confint(selectedmodel)
+#ci
+# kindly remove comment from xtable command and delete confidence interval output before knitting markdown
+#xtable(ci)
+```
+#### Question 3:
+
+```{r, echo=FALSE}
+interactionmodel <- lm(formula = growth ~ treat + re75 + age_c + treat:age_c + treat:race, data = dta)
+anova_table <- anova(selectedmodel, interactionmodel)
+#anova_table
+# kindly remove comment from xtable command and delete anova_table output before knitting markdown
+#xtable(anova_table)
+```
+
+After carrying out an F-test to determine if the effect of training on earnings differs by demographic groups, we had a p-value of 0.447. In a regression model, it was not a significant predictor. This means there is no statistically significant evidence that the effect of training on earnings differs by demographic groups.
+
+#### Question 4:
+
+Apart from the training status of participants, the age, real annual earnings in 1975 and interactions between training status and age have a significant effect on the growth in real annual earnings from 1974 to 1978. The predictor variable that had the most effect on the growth in real annual earnings is the age of participants. Keeping all other predictor variables constant, the growth in real annual earnings decreased by \$149.52 for every year older that a participant gets. Also, keeping all other predictor variables constant, the growth in real annual earnings decreased by \$0.41 for every dollar increase in real annual earnings for 1975.
+
+
+\newpage
+## Appendix
+
+1. Data dictionary
+
+&nbsp; | Variable         | Description
+-------|----------------|--------------------------------------
+&nbsp; | treat      | *1 if participant received training, 0 if participant did not*
+&nbsp; | age            | *age in years*     
+&nbsp; | educ         | *years of education*
+&nbsp; | black          | *1 if race is black, 0 otherwisee*
+&nbsp; | hisp           | *if Hispanic ethnicity, 0 otherwise*
+&nbsp; | married          | *1 if married, 0 otherwise*
+&nbsp; | nodegree          | *1 if participant dropped out of high school, 0 otherwise*
+&nbsp; | re74        | *real annual earnings in 1974*
+&nbsp; | re75            | *real annual earnings in 1975*
+&nbsp; | re78         | *real annual earnings in 1978*
+
+2. Summary for baseline model
+
+```{r, results = "asis",header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+stargazer(baselinemodel,title= "Results", header=FALSE, type='latex',digits = 2,no.space = TRUE,column.sep.width = "3pt",single.row=TRUE)
 
 ```
 
