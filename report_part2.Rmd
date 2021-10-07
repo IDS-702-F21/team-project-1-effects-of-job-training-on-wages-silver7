@@ -3,6 +3,7 @@ output:
   pdf_document: default
   geometry: margin=0.8in
   html_document: default
+  word_document: default
 ---
 # Part Two
 ```{r setup , echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}
@@ -282,13 +283,16 @@ wage_race <- apply(table(df[,c('wage_fact', 'race')]) / sum(table(df[,c('wage_fa
 rownames(wage_race) <- c("wage0", "wage1")
 colnames(wage_race) <- c("black", "hispanic", "other")
 knitr::kable(wage_race, escape = FALSE, 'pipe', , caption = "Conditional table for wage given race")
-wage_educ <- apply(table(df[,c('wage_fact', 'educ')]) / sum(table(df[,c('wage_fact', 'educ')])), 2, function(x) x/sum(x))
-wage_educ
-```
 
+
+wage_educ <- apply(round(table(df[,c('wage_fact', 'educ')]) / sum(table(df[,c('wage_fact', 'educ')])),3), 2, function(x) x/sum(x))
+#knitr::kable(wage_educ, escape = FALSE, 'pipe', , caption = "Conditional table for wage given education")
+
+```
+\newpage
 1.3 RE74 v Outcome
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, out.width='50%'}
+```{r, results = "asis",fig.width=3.2, fig.height=2.2,header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
 ggplot(df, aes(y=wage_fact, x=re74, fill=re74)) + 
   geom_boxplot() + 
   theme(legend.position='none') + 
@@ -313,8 +317,10 @@ knitr::kable(interact_df1,  escape = FALSE, 'pipe', caption = "Conditional proba
 
 1.5
 
-```{r echo=FALSE, warning=FALSE, include=TRUE, message=FALSE, fig.show='hold', out.width='80%'}
-par(mfcol=c(2,1))
+
+```{r, results = "asis",fig.width=4, fig.height=3, fig.show="hold", out.width="50%", header= FALSE, message = FALSE, warning = FALSE, echo=FALSE}
+
+#par(mfcol=c(2,1))
 
 binnedplot(y=df$wage[df$treat==0], 
            df$educ[df$treat==0], 
@@ -347,7 +353,7 @@ sinteract_df = data.frame(
 knitr::kable(interact_df,  escape = FALSE, 'pipe', caption = "Conditional probability of wage being non-zero given treat and race", digits=2)
 ```
 
-\\
+\newpage
 
 2.1 
 
@@ -375,7 +381,7 @@ xtable(summary(b_aic))
 
 ```
 
-
+\newpage
 2.3
 
 
@@ -445,7 +451,7 @@ knitr::kable(cm3$byClass[c("Sensitivity","Specificity")], escape = FALSE, 'pipe'
 #cm3$overall["Accuracy"]
 #cm3$byClass[c("Sensitivity","Specificity")]
 ```
-
+\newpage
 2.5 VIF
 
 ```{r  echo=FALSE, warning=FALSE, include=TRUE, message=FALSE}

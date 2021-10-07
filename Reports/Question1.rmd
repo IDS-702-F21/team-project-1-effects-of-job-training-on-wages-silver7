@@ -28,6 +28,7 @@ library(sjlabelled)
 
 #knitr::opts_chunk$set(fig.width=10, fig.height=5)
 ```
+## Part One
 ## Introduction 
 
 In this project, we analyse data derived from an experiment conducted by the National Supported Work (NSW) Demonstration in which researchers wanted to assess whether or not job training for disadvantaged workers had an effect on their wages. Specifically, we seek to understand if workers who receive job training tend to earn higher wages than workers who do not receive job training. We also investigate if this effect differs across demographic groups. Through the course of this analysis, we perform exploratory data analysis to identify the different socioeconomic characteristics that are associated with real annual earnings, and then model them using a linear regression. We find that treatment status is a significant predictor of income growth, and that this effect does not differ across demographic groups.
